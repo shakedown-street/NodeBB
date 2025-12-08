@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, redirect } from 'react-router';
 import prisma from '~/lib/prisma';
 import { getUser } from '~/services/auth.service';
 import type { Route } from './+types/thread';
@@ -13,6 +13,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const thread = await prisma.thread.findUnique({
     where: { id: Number(params.id) },
     include: {
+      category: true,
       user: true,
       posts: true,
     },
@@ -22,6 +23,37 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     user,
     thread,
   };
+}
+
+export async function action({ params, request }: Route.ActionArgs) {
+  const user = await getUser(request);
+
+  if (!user) {
+    return { error: 'You must be logged in to post.' };
+  }
+
+  const form = await request.formData();
+  const content = String(form.get('content') || '').trim();
+
+  if (!content) {
+    return { error: 'Content is required.' };
+  }
+
+  const threadId = Number(params.id);
+
+  if (isNaN(threadId)) {
+    return { error: 'Invalid thread.' };
+  }
+
+  await prisma.post.create({
+    data: {
+      content,
+      threadId,
+      userId: user.id,
+    },
+  });
+
+  return redirect(`/threads/${threadId}`);
 }
 
 export default function Thread({ loaderData }: Route.ComponentProps) {
@@ -45,7 +77,13 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
           </li>
         ))}
       </ul>
-      <Link to={`/categories/${thread.categoryId}`}>Back to Category</Link>
+      {user && (
+        <form method="post">
+          <textarea name="content" required></textarea>
+          <button type="submit">Add Post</button>
+        </form>
+      )}
+      <Link to={`/categories/${thread.categoryId}`}>Back to {thread.category.name}</Link>
     </>
   );
 }

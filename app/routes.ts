@@ -5,5 +5,6 @@ export default [
   route('/login', 'routes/login.tsx'),
   route('/logout', 'routes/logout.tsx'),
   route('/categories/:id', 'routes/category.tsx'),
+  route('/categories/:id/create-thread', 'routes/thread-create.tsx'),
   route('/threads/:id', 'routes/thread.tsx'),
 ] satisfies RouteConfig;

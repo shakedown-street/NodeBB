@@ -22,9 +22,15 @@ export async function loader({ request }: Route.LoaderArgs) {
     }),
   );
 
+  const recentThreads = await prisma.thread.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 5,
+  });
+
   return {
     user,
     categories: categoriesWithLatestThread,
+    recentThreads,
   };
 }
 
@@ -43,6 +49,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 Latest Thread: <Link to={`/threads/${category.latestThread.id}`}>{category.latestThread.title}</Link>
               </div>
             )}
+          </li>
+        ))}
+      </ul>
+      <h2>Recent Threads</h2>
+      <ul>
+        {loaderData.recentThreads.map((thread) => (
+          <li key={thread.id}>
+            <Link to={`/threads/${thread.id}`}>{thread.title}</Link>
           </li>
         ))}
       </ul>
