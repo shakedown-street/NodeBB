@@ -66,7 +66,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
     <>
       <ThemeProvider>
         <Nav user={user} />
-        <Outlet />
+        <div className="my-12">
+          <Outlet />
+        </div>
       </ThemeProvider>
     </>
   );

@@ -2,6 +2,7 @@ import { Link, redirect } from 'react-router';
 import prisma from '~/lib/prisma';
 import { getUser } from '~/services/auth.service';
 import type { Route } from './+types/thread';
+import clsx from 'clsx';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'NodeBB' }];
@@ -18,16 +19,36 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     },
   });
 
+  if (!thread) {
+    throw new Error('Thread not found');
+  }
+
+  // Paginate posts
+
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get('page') || '1');
+  const pageSize = 10;
+  const skip = (page - 1) * pageSize;
+
   const posts = await prisma.post.findMany({
     where: { threadId: thread ? thread.id : undefined },
     include: { user: true },
     orderBy: { createdAt: 'asc' },
+    skip,
+    take: pageSize,
+  });
+
+  const totalPosts = await prisma.post.count({
+    where: { threadId: thread.id },
   });
 
   return {
     user,
     thread: thread,
+    page,
+    pageSize,
     posts,
+    totalPosts,
   };
 }
 
@@ -63,7 +84,9 @@ export async function action({ params, request }: Route.ActionArgs) {
 }
 
 export default function Thread({ loaderData }: Route.ComponentProps) {
-  const { user, thread, posts } = loaderData;
+  const { user, thread, posts, totalPosts, page, pageSize } = loaderData;
+
+  const totalPages = Math.ceil(totalPosts / pageSize);
 
   if (!thread) {
     return <div>Thread not found</div>;
@@ -71,37 +94,39 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className="pw-container xl mb-16">
+      <div className="pw-container xl">
         <Link to={`/categories/${thread.categoryId}`}>Back to {thread.category.name}</Link>
         <h1>{thread.title}</h1>
         <div className="flex flex-col gap-4">
-          <div className="pw-card p-0">
-            <div
-              className="border-b p-4"
-              style={{
-                backgroundColor: 'var(--muted)',
-              }}
-            >
-              <h4 className="my-0">{thread.createdAt.toLocaleString()}</h4>
-            </div>
-            <div className="flex">
-              <div className="flex w-64 flex-col items-center gap-4 border-r p-4">
-                <div className="pw-avatar xl">
-                  <div className="pw-avatar-fallback">{thread.user.email.charAt(0).toUpperCase()}</div>
+          {page === 1 && (
+            <div className="pw-card p-0">
+              <div
+                className="border-b p-4"
+                style={{
+                  backgroundColor: 'var(--muted)',
+                }}
+              >
+                <h4 className="my-0">{thread.createdAt.toLocaleString()}</h4>
+              </div>
+              <div className="flex">
+                <div className="flex w-64 flex-col items-center gap-4 border-r p-4">
+                  <div className="pw-avatar xl">
+                    <div className="pw-avatar-fallback">{thread.user.email.charAt(0).toUpperCase()}</div>
+                  </div>
+                  <div>{thread.user.email}</div>
                 </div>
-                <div>{thread.user.email}</div>
-              </div>
-              <div className="flex-1 p-4">
-                <p
-                  style={{
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
-                  {thread.content}
-                </p>
+                <div className="flex-1 p-4">
+                  <p
+                    style={{
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {thread.content}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           {posts.map((post) => (
             <div className="pw-card p-0">
               <div
@@ -131,6 +156,34 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
           ))}
+          {totalPages > 1 && (
+            <ul className="pw-pagination">
+              <li
+                className={clsx({
+                  disabled: page === 1,
+                })}
+              >
+                {page === 1 ? 'Prev' : <Link to={`?page=${page - 1}`}>Prev</Link>}
+              </li>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <li
+                  key={i}
+                  className={clsx({
+                    active: page === i + 1,
+                  })}
+                >
+                  {page === i + 1 ? i + 1 : <Link to={`?page=${i + 1}`}>{i + 1}</Link>}
+                </li>
+              ))}
+              <li
+                className={clsx({
+                  disabled: page === totalPages,
+                })}
+              >
+                {page === totalPages ? 'Next' : <Link to={`?page=${page + 1}`}>Next</Link>}
+              </li>
+            </ul>
+          )}
           {user && (
             <div className="pw-card p-0">
               <div
