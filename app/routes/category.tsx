@@ -1,12 +1,15 @@
 import { Link } from 'react-router';
 import prisma from '~/lib/prisma';
+import { getUser } from '~/services/auth.service';
 import type { Route } from './+types/category';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'NodeBB' }];
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const user = await getUser(request);
+
   const category = await prisma.category.findUnique({
     where: { id: Number(params.id) },
   });
@@ -33,13 +36,14 @@ export async function loader({ params }: Route.LoaderArgs) {
   );
 
   return {
+    user,
     category,
     threads,
   };
 }
 
 export default function Category({ loaderData }: Route.ComponentProps) {
-  const { category, threads } = loaderData;
+  const { user, category, threads } = loaderData;
 
   if (!category) {
     return <div>Category not found</div>;
@@ -51,9 +55,11 @@ export default function Category({ loaderData }: Route.ComponentProps) {
         <Link to="/">Back to home</Link>
         <div className="flex items-center justify-between">
           <h1>{category.name}</h1>
-          <Link to={`/categories/${category.id}/create-thread`}>
-            <button className="pw-button primary">Create thread</button>
-          </Link>
+          {user && (
+            <Link to={`/categories/${category.id}/create-thread`}>
+              <button className="pw-button primary">Create thread</button>
+            </Link>
+          )}
         </div>
         <div className="pw-table-container">
           <table>
