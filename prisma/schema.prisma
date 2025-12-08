@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id           Int   @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   email        String   @unique
@@ -24,34 +24,34 @@ model User {
 }
 
 model Category {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name String
-  order Int
-  threads Thread[]
+  name      String
+  order     Int
+  threads   Thread[]
 }
 
 model Thread {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title String
-  content String
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  title      String
+  content    String
   categoryId Int
-  category Category @relation(fields: [categoryId], references: [id])
-  userId Int
-  user User @relation(fields: [userId], references: [id])
-  posts Post[]
+  category   Category @relation(fields: [categoryId], references: [id])
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  posts      Post[]
 }
 
 model Post {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  content String
-  threadId Int
-  thread Thread @relation(fields: [threadId], references: [id])
-  userId Int
-  user User @relation(fields: [userId], references: [id])
+  content   String
+  threadId  Int
+  thread    Thread   @relation(fields: [threadId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
 }

@@ -2,8 +2,8 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 import type { Route } from './+types/root';
 import './app.css';
 import Nav from './components/nav';
-import { getUser } from './services/auth.service';
 import { ThemeProvider } from './context/theme';
+import { getUser } from './services/auth.service';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
