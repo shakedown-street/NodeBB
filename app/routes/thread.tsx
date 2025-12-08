@@ -14,7 +14,9 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     where: { id: Number(params.id) },
     include: {
       category: true,
-      user: true,
+      user: {
+        select: { id: true, createdAt: true, updatedAt: true, email: true },
+      },
     },
   });
 
@@ -31,7 +33,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const posts = await prisma.post.findMany({
     where: { threadId: thread ? thread.id : undefined },
-    include: { user: true },
+    include: {
+      user: {
+        select: { id: true, createdAt: true, updatedAt: true, email: true },
+      },
+    },
     orderBy: { createdAt: 'asc' },
     skip,
     take: pageSize,

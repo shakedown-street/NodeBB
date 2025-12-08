@@ -31,12 +31,19 @@ export async function createUser({ email, password }: { email: string; password:
 
   const passwordHash = await bcrypt.hash(password, 12);
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-    },
-  });
+  const user = await prisma.user
+    .create({
+      data: {
+        email,
+        passwordHash,
+      },
+    })
+    .then((user) => ({
+      id: user.id,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      email: user.email,
+    }));
 
   return user;
 }
@@ -54,7 +61,12 @@ export async function authenticate(email: string, password: string) {
     return null;
   }
 
-  return user;
+  return {
+    id: user.id,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    email: user.email,
+  };
 }
 
 export async function login(userId: number, redirectTo = '/') {
@@ -102,7 +114,17 @@ export async function getUser(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({ where: { id: Number(userId) } });
+  const user = await prisma.user.findUnique({
+    where: {
+      id: Number(userId),
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+      email: true,
+    },
+  });
 
   return user;
 }

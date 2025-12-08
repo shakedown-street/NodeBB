@@ -25,7 +25,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
           const latestPost = await prisma.post.findFirst({
             where: { threadId: thread.id },
-            include: { user: true },
+            include: {
+              user: {
+                select: { id: true, createdAt: true, updatedAt: true, email: true },
+              },
+            },
             orderBy: { createdAt: 'desc' },
           });
           return { ...thread, postCount, latestPost };
