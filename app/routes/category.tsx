@@ -73,10 +73,18 @@ export default function Category({ loaderData }: Route.ComponentProps) {
                   <td>{thread.postCount}</td>
                   <td>
                     {thread.latestPost ? (
-                      <div>
-                        <Link className="block" to={`/threads/${thread.id}#post-${thread.latestPost.id}`}>
-                          {thread.latestPost.createdAt.toLocaleString()} • {thread.latestPost.user.email}
-                        </Link>
+                      <div className="flex items-center gap-3">
+                        <div className="pw-avatar xs">
+                          <div className="pw-avatar-fallback">
+                            {thread.latestPost.user.email.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                        <div>
+                          <Link className="block" to={`/threads/${thread.id}#post-${thread.latestPost.id}`}>
+                            {thread.latestPost.createdAt.toLocaleString()}
+                          </Link>
+                          <div>{thread.latestPost.user.email}</div>
+                        </div>
                       </div>
                     ) : (
                       'No threads yet'

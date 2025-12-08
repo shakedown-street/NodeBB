@@ -67,12 +67,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   <td>{category.postCount}</td>
                   <td>
                     {category.latestThread ? (
-                      <div>
-                        <Link className="block" to={`/threads/${category.latestThread.id}`}>
-                          {category.latestThread.title}
-                        </Link>
+                      <div className="flex items-center gap-3">
+                        <div className="pw-avatar xs">
+                          <div className="pw-avatar-fallback">
+                            {category.latestThread.user.email.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
                         <div>
-                          {category.latestThread.createdAt.toLocaleString()} • {category.latestThread.user.email}
+                          <Link className="block" to={`/threads/${category.latestThread.id}`}>
+                            {category.latestThread.title}
+                          </Link>
+                          <div>
+                            {category.latestThread.createdAt.toLocaleString()} • {category.latestThread.user.email}
+                          </div>
                         </div>
                       </div>
                     ) : (
