@@ -1,5 +1,5 @@
-import { createCookieSessionStorage, redirect } from 'react-router';
 import bcrypt from 'bcrypt';
+import { createCookieSessionStorage, redirect } from 'react-router';
 import prisma from '~/lib/prisma';
 
 const SESSION_SECRET = process.env.SESSION_SECRET!;
