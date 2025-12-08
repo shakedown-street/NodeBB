@@ -4,7 +4,7 @@ import { authenticate, getUser, login } from '~/services/auth.service';
 import type { Route } from './+types/login';
 
 const LoginSchema = z.object({
-  email: z.email(),
+  email: z.email().trim(),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -21,7 +21,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const form = await request.formData();
   const formData = {
-    email: String(form.get('email') || '').trim(),
+    email: String(form.get('email') || ''),
     password: String(form.get('password') || ''),
   };
 
