@@ -15,13 +15,19 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     include: {
       category: true,
       user: true,
-      posts: true,
     },
+  });
+
+  const posts = await prisma.post.findMany({
+    where: { threadId: thread ? thread.id : undefined },
+    include: { user: true },
+    orderBy: { createdAt: 'asc' },
   });
 
   return {
     user,
-    thread,
+    thread: thread,
+    posts,
   };
 }
 
@@ -57,7 +63,7 @@ export async function action({ params, request }: Route.ActionArgs) {
 }
 
 export default function Thread({ loaderData }: Route.ComponentProps) {
-  const { user, thread } = loaderData;
+  const { user, thread, posts } = loaderData;
 
   if (!thread) {
     return <div>Thread not found</div>;
@@ -65,25 +71,90 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <h1>{thread.title}</h1>
-      <p>{thread.createdAt.toLocaleDateString()}</p>
-      <p>By: {thread.user.email}</p>
-      <p>{thread.content}</p>
-      <h2>Posts</h2>
-      <ul>
-        {thread.posts.map((post) => (
-          <li key={post.id}>
-            <p>{post.content}</p>
-          </li>
-        ))}
-      </ul>
-      {user && (
-        <form method="post">
-          <textarea name="content" required></textarea>
-          <button type="submit">Add Post</button>
-        </form>
-      )}
-      <Link to={`/categories/${thread.categoryId}`}>Back to {thread.category.name}</Link>
+      <div className="pw-container xl mb-16">
+        <Link to={`/categories/${thread.categoryId}`}>Back to {thread.category.name}</Link>
+        <h1>{thread.title}</h1>
+        <div className="flex flex-col gap-4">
+          <div className="pw-card p-0">
+            <div
+              className="border-b p-4"
+              style={{
+                backgroundColor: 'var(--muted)',
+              }}
+            >
+              <h4 className="my-0">{thread.createdAt.toLocaleString()}</h4>
+            </div>
+            <div className="flex">
+              <div className="flex w-64 flex-col items-center gap-4 border-r p-4">
+                <div className="pw-avatar xl">
+                  <div className="pw-avatar-fallback">{thread.user.email.charAt(0).toUpperCase()}</div>
+                </div>
+                <div>{thread.user.email}</div>
+              </div>
+              <div className="flex-1 p-4">
+                <p
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {thread.content}
+                </p>
+              </div>
+            </div>
+          </div>
+          {posts.map((post) => (
+            <div className="pw-card p-0">
+              <div
+                className="border-b p-4"
+                style={{
+                  backgroundColor: 'var(--muted)',
+                }}
+              >
+                <h4 className="my-0">{post.createdAt.toLocaleString()}</h4>
+              </div>
+              <div className="flex">
+                <div className="flex w-64 flex-col items-center gap-4 border-r p-4">
+                  <div className="pw-avatar xl">
+                    <div className="pw-avatar-fallback">{post.user.email.charAt(0).toUpperCase()}</div>
+                  </div>
+                  <div>{post.user.email}</div>
+                </div>
+                <div className="flex-1 p-4">
+                  <p
+                    style={{
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {post.content}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+          {user && (
+            <div className="pw-card p-0">
+              <div
+                className="border-b p-4"
+                style={{
+                  backgroundColor: 'var(--muted)',
+                }}
+              >
+                <h4 className="my-0">Reply to thread</h4>
+              </div>
+              <div className="p-4">
+                <form className="pw-form" method="post">
+                  <div className="pw-form-group">
+                    <textarea rows={8} name="content" required></textarea>
+                  </div>
+                  <div className="pw-form-actions end">
+                    <button type="submit">Post reply</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </>
   );
 }

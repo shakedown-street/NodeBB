@@ -47,23 +47,34 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Login({ actionData }: Route.ComponentProps) {
   return (
-    <form method="post">
-      <label>
-        Email <input name="email" type="email" />
-      </label>
-      <label>
-        Password <input name="password" type="password" />
-      </label>
-      {actionData?.error && (
-        <ul>
-          {actionData.error.map((err: { message: string }, i: number) => (
-            <li key={i} className="text-red-800">
-              {err.message}
-            </li>
-          ))}
-        </ul>
-      )}
-      <button type="submit">Login</button>
-    </form>
+    <>
+      <div className="pw-container xs">
+        <div className="pw-card">
+          <h1 className="mt-0">Login</h1>
+          <form className="pw-form" method="post">
+            <div className="pw-form-group">
+              <label htmlFor="email">Email</label>
+              <input className="w-full" id="email" name="email" required type="email" />
+            </div>
+            <div className="pw-form-group">
+              <label htmlFor="password">Password</label>
+              <input className="w-full" id="password" name="password" required type="password" />
+            </div>
+            {actionData?.error && (
+              <ul>
+                {actionData.error.map((err: { message: string }, i: number) => (
+                  <li key={i} className="text-red-800">
+                    {err.message}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <button className="pw-button primary" type="submit">
+              Login
+            </button>
+          </form>
+        </div>
+      </div>
+    </>
   );
 }

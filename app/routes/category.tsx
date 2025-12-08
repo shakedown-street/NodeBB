@@ -9,18 +9,37 @@ export function meta({}: Route.MetaArgs) {
 export async function loader({ params }: Route.LoaderArgs) {
   const category = await prisma.category.findUnique({
     where: { id: Number(params.id) },
-    include: {
-      threads: true,
-    },
   });
+
+  const threads = await Promise.all(
+    await prisma.thread
+      .findMany({
+        where: { categoryId: Number(params.id) },
+      })
+      .then((threads) =>
+        threads.map(async (thread) => {
+          const postCount = await prisma.post.count({
+            where: { threadId: thread.id },
+          });
+
+          const latestPost = await prisma.post.findFirst({
+            where: { threadId: thread.id },
+            include: { user: true },
+            orderBy: { createdAt: 'desc' },
+          });
+          return { ...thread, postCount, latestPost };
+        }),
+      ),
+  );
 
   return {
     category,
+    threads,
   };
 }
 
 export default function Category({ loaderData }: Route.ComponentProps) {
-  const { category } = loaderData;
+  const { category, threads } = loaderData;
 
   if (!category) {
     return <div>Category not found</div>;
@@ -28,16 +47,47 @@ export default function Category({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <h1>{category.name}</h1>
-      <Link to={`/categories/${category.id}/create-thread`}>Create New Thread</Link>
-      <ul>
-        {category.threads.map((thread) => (
-          <li key={thread.id}>
-            <Link to={`/threads/${thread.id}`}>{thread.title}</Link>
-          </li>
-        ))}
-      </ul>
-      <Link to="/">Back to home</Link>
+      <div className="pw-container xl">
+        <Link to="/">Back to home</Link>
+        <div className="flex items-center justify-between">
+          <h1>{category.name}</h1>
+          <Link to={`/categories/${category.id}/create-thread`}>
+            <button className="pw-button primary">Create thread</button>
+          </Link>
+        </div>
+        <div className="pw-table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Thread</th>
+                <th>Posts</th>
+                <th>Latest post</th>
+              </tr>
+            </thead>
+            <tbody>
+              {threads.map((thread) => (
+                <tr key={thread.id}>
+                  <td>
+                    <Link to={`/threads/${thread.id}`}>{thread.title}</Link>
+                  </td>
+                  <td>{thread.postCount}</td>
+                  <td>
+                    {thread.latestPost ? (
+                      <div>
+                        <Link className="block" to={`/threads/${thread.id}#post-${thread.latestPost.id}`}>
+                          {thread.latestPost.createdAt.toLocaleString()} • {thread.latestPost.user.email}
+                        </Link>
+                      </div>
+                    ) : (
+                      'No threads yet'
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </>
   );
 }

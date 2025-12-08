@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, redirect } from 'react-router';
 import prisma from '~/lib/prisma';
 import { getUserId } from '~/services/auth.service';
 import type { Route } from './+types/thread-create';
@@ -44,7 +44,7 @@ export async function action({ params, request }: Route.ActionArgs) {
     },
   });
 
-  return { thread };
+  return redirect(`/threads/${thread.id}`);
 }
 
 export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
@@ -56,15 +56,36 @@ export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <h1>{category.name}</h1>
-      <form method="post">
-        <label>Title:</label>
-        <input type="text" name="title" required />
-        <label>Content:</label>
-        <textarea name="content" required></textarea>
-        <button type="submit">Create Thread</button>
-      </form>
-      <Link to={`/categories/${category.id}`}>Back to {category.name}</Link>
+      <div className="pw-container xl">
+        <Link to={`/categories/${category.id}`}>Back to {category.name}</Link>
+        <h1>{category.name}</h1>
+
+        <div className="pw-card p-0">
+          <div
+            className="border-b p-4"
+            style={{
+              backgroundColor: 'var(--muted)',
+            }}
+          >
+            <h4 className="my-0">Create thread</h4>
+          </div>
+          <div className="p-4">
+            <form className="pw-form" method="post">
+              <div className="pw-form-group">
+                <label htmlFor="title">Title</label>
+                <input className="w-full" id="title" name="title" required type="text" />
+              </div>
+              <div className="pw-form-group">
+                <label htmlFor="content">Content</label>
+                <textarea id="content" rows={8} name="content" required></textarea>
+              </div>
+              <div className="pw-form-actions end">
+                <button type="submit">Create thread</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
