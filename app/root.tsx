@@ -1,7 +1,8 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
-
 import type { Route } from './+types/root';
 import './app.css';
+import Nav from './components/nav';
+import { getUser } from './services/auth.service';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -38,8 +39,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
-  return <Outlet />;
+export async function loader({ request }: Route.LoaderArgs) {
+  const user = await getUser(request);
+
+  return { user };
+}
+
+export default function App({ loaderData }: Route.ComponentProps) {
+  const { user } = loaderData;
+
+  return (
+    <>
+      <Nav user={user} />
+      <Outlet />
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
