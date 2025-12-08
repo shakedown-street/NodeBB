@@ -1,6 +1,5 @@
-import { redirect } from 'react-router';
 import z from 'zod';
-import { authenticate, getUser, login } from '~/services/auth.service';
+import { authenticate, login, redirectIfAuthenticated } from '~/services/auth.service';
 import type { Route } from './+types/login';
 
 const LoginSchema = z.object({
@@ -13,13 +12,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getUser(request);
-
-  if (user) {
-    return redirect('/');
-  }
-
-  return null;
+  await redirectIfAuthenticated(request);
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -42,7 +35,9 @@ export async function action({ request }: Route.ActionArgs) {
     return { error: [{ message: 'Invalid email or password' }] };
   }
 
-  return login(user.id, '/');
+  const redirectTo = new URL(request.url).searchParams.get('redirectTo') || '/';
+
+  return login(user.id, redirectTo);
 }
 
 export default function Login({ actionData }: Route.ComponentProps) {

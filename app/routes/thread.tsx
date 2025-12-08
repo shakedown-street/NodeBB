@@ -1,16 +1,15 @@
-import { Link, redirect } from 'react-router';
-import prisma from '~/lib/prisma';
-import { getUser } from '~/services/auth.service';
-import type { Route } from './+types/thread';
 import clsx from 'clsx';
+import { Link, redirect } from 'react-router';
+import { useAuth } from '~/context/auth';
+import prisma from '~/lib/prisma';
+import { getUserId } from '~/services/auth.service';
+import type { Route } from './+types/thread';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'NodeBB' }];
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const user = await getUser(request);
-
   const thread = await prisma.thread.findUnique({
     where: { id: Number(params.id) },
     include: {
@@ -43,7 +42,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   });
 
   return {
-    user,
     thread: thread,
     page,
     pageSize,
@@ -53,9 +51,9 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 }
 
 export async function action({ params, request }: Route.ActionArgs) {
-  const user = await getUser(request);
+  const userId = await getUserId(request);
 
-  if (!user) {
+  if (!userId) {
     return { error: 'You must be logged in to post.' };
   }
 
@@ -76,7 +74,7 @@ export async function action({ params, request }: Route.ActionArgs) {
     data: {
       content,
       threadId,
-      userId: user.id,
+      userId,
     },
   });
 
@@ -84,9 +82,11 @@ export async function action({ params, request }: Route.ActionArgs) {
 }
 
 export default function Thread({ loaderData }: Route.ComponentProps) {
-  const { user, thread, posts, totalPosts, page, pageSize } = loaderData;
+  const { thread, posts, totalPosts, page, pageSize } = loaderData;
 
   const totalPages = Math.ceil(totalPosts / pageSize);
+
+  const { user } = useAuth();
 
   if (!thread) {
     return <div>Thread not found</div>;

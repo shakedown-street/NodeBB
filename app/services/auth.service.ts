@@ -118,3 +118,11 @@ export async function requireUserId(request: Request, redirectTo = new URL(reque
 
   return userId;
 }
+
+export async function redirectIfAuthenticated(request: Request) {
+  const userId = await getUserId(request);
+
+  if (userId) {
+    throw redirect('/');
+  }
+}

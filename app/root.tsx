@@ -4,6 +4,7 @@ import './app.css';
 import Nav from './components/nav';
 import { ThemeProvider } from './context/theme';
 import { getUser } from './services/auth.service';
+import { AuthProvider } from './context/auth';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -64,12 +65,14 @@ export default function App({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <ThemeProvider>
-        <Nav user={user} />
-        <div className="my-12">
-          <Outlet />
-        </div>
-      </ThemeProvider>
+      <AuthProvider user={user}>
+        <ThemeProvider>
+          <Nav />
+          <div className="my-12">
+            <Outlet />
+          </div>
+        </ThemeProvider>
+      </AuthProvider>
     </>
   );
 }

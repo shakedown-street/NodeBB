@@ -1,13 +1,10 @@
 import { MoonIcon, SunIcon } from '@heroicons/react/16/solid';
-import type { User } from 'generated/prisma/client';
 import { Link } from 'react-router';
+import { useAuth } from '~/context/auth';
 import { useTheme } from '~/context/theme';
 
-type NavProps = {
-  user: User | null;
-};
-
-export default function Nav({ user }: NavProps) {
+export default function Nav() {
+  const { user } = useAuth();
   const { theme, setTheme } = useTheme();
 
   return (

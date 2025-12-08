@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
+import { useAuth } from '~/context/auth';
 import prisma from '~/lib/prisma';
-import { getUser } from '~/services/auth.service';
 import type { Route } from './+types/category';
 
 export function meta({}: Route.MetaArgs) {
@@ -8,8 +8,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const user = await getUser(request);
-
   const category = await prisma.category.findUnique({
     where: { id: Number(params.id) },
   });
@@ -36,14 +34,15 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   );
 
   return {
-    user,
     category,
     threads,
   };
 }
 
 export default function Category({ loaderData }: Route.ComponentProps) {
-  const { user, category, threads } = loaderData;
+  const { category, threads } = loaderData;
+
+  const { user } = useAuth();
 
   if (!category) {
     return <div>Category not found</div>;

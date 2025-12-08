@@ -1,13 +1,15 @@
 import { Link, redirect } from 'react-router';
 import prisma from '~/lib/prisma';
-import { getUserId } from '~/services/auth.service';
+import { getUserId, requireUserId } from '~/services/auth.service';
 import type { Route } from './+types/thread-create';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'NodeBB' }];
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
+  await requireUserId(request);
+
   const category = await prisma.category.findUnique({
     where: { id: Number(params.id) },
     include: {
