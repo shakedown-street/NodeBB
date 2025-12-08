@@ -8,6 +8,10 @@ const LoginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+export function meta({}: Route.MetaArgs) {
+  return [{ title: 'Login | NodeBB' }];
+}
+
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request);
 
