@@ -7,7 +7,7 @@ const ThemeContext = React.createContext<{
   setTheme: (theme: Theme) => void;
 }>({ theme: 'dark', setTheme: () => {} });
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = React.useState<Theme>('dark');
 
   React.useEffect(() => {
@@ -25,6 +25,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [theme]);
 
   return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
-};
+}
 
 export const useTheme = () => React.useContext(ThemeContext);
