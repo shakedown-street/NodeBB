@@ -57,7 +57,7 @@ export async function authenticate(email: string, password: string) {
   return user;
 }
 
-export async function login(userId: string, redirectTo = '/') {
+export async function login(userId: number, redirectTo = '/') {
   const session = await sessionStorage.getSession();
   session.set(USER_SESSION_KEY, userId);
 
@@ -88,7 +88,7 @@ export async function getUserId(request: Request) {
   const session = await getSession(request);
   const userId = session.get(USER_SESSION_KEY);
 
-  if (!userId || typeof userId !== 'string') {
+  if (!userId || typeof userId !== 'number') {
     return null;
   }
 
@@ -102,7 +102,7 @@ export async function getUser(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({ where: { id: Number(userId) } });
 
   return user;
 }
@@ -111,7 +111,7 @@ export async function requireUserId(request: Request, redirectTo = new URL(reque
   const session = await getSession(request);
   const userId = session.get(USER_SESSION_KEY);
 
-  if (!userId || typeof userId !== 'string') {
+  if (!userId || typeof userId !== 'number') {
     const searchParams = new URLSearchParams([['redirectTo', redirectTo]]);
     throw redirect(`/login?${searchParams}`);
   }

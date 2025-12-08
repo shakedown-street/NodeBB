@@ -14,9 +14,44 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
+  id           Int   @id @default(autoincrement())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  email        String   @unique
+  passwordHash String
+  threads      Thread[]
+  posts        Post[]
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name String
+  order Int
+  threads Thread[]
+}
+
+model Thread {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title String
+  content String
+  categoryId Int
+  category Category @relation(fields: [categoryId], references: [id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  posts Post[]
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content String
+  threadId Int
+  thread Thread @relation(fields: [threadId], references: [id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
 }
