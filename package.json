@@ -6,7 +6,7 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "format": "prettier --write '{app,prisma}/**/*.{ts,js,html,tsx,jsx,json,scss,css,md}'",
+    "format": "prettier --write '{app,prisma}/**/*.{ts,js,html,tsx,jsx,json,scss,css,md,prisma}'",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
