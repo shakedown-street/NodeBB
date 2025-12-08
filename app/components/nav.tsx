@@ -1,11 +1,15 @@
+import { MoonIcon, SunIcon } from '@heroicons/react/16/solid';
 import type { User } from 'generated/prisma/client';
 import { Link } from 'react-router';
+import { useTheme } from '~/context/theme';
 
 type NavProps = {
   user: User | null;
 };
 
 export default function Nav({ user }: NavProps) {
+  const { theme, setTheme } = useTheme();
+
   return (
     <>
       <div className="pw-container xl">
@@ -14,6 +18,9 @@ export default function Nav({ user }: NavProps) {
             NodeBB
           </Link>
           <div className="flex items-center gap-4">
+            <button className="pw-button sm" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+              {theme === 'light' ? <MoonIcon className="h-4 w-4" /> : <SunIcon className="h-4 w-4" />}
+            </button>
             {user ? (
               <Link to="/logout">
                 <button className="pw-button sm">Logout</button>

@@ -3,6 +3,7 @@ import type { Route } from './+types/root';
 import './app.css';
 import Nav from './components/nav';
 import { getUser } from './services/auth.service';
+import { ThemeProvider } from './context/theme';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -29,6 +30,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* Prevent FOUC by setting theme before React loads */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem('theme');
+                if (theme === 'light' || theme === 'dark') {
+                  document.documentElement.setAttribute('data-theme', theme);
+                }
+              } catch(e) {}
+            `,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -50,8 +64,10 @@ export default function App({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <Nav user={user} />
-      <Outlet />
+      <ThemeProvider>
+        <Nav user={user} />
+        <Outlet />
+      </ThemeProvider>
     </>
   );
 }
