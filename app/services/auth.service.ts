@@ -118,12 +118,7 @@ export async function getUser(request: Request) {
     where: {
       id: Number(userId),
     },
-    select: {
-      id: true,
-      createdAt: true,
-      updatedAt: true,
-      email: true,
-    },
+    omit: { passwordHash: true },
   });
 
   return user;

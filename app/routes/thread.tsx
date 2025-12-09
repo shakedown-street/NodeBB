@@ -15,7 +15,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     include: {
       category: true,
       user: {
-        select: { id: true, createdAt: true, updatedAt: true, email: true },
+        omit: { passwordHash: true },
       },
     },
   });
@@ -35,7 +35,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     where: { threadId: thread ? thread.id : undefined },
     include: {
       user: {
-        select: { id: true, createdAt: true, updatedAt: true, email: true },
+        omit: { passwordHash: true },
       },
     },
     orderBy: { createdAt: 'asc' },

@@ -25,7 +25,7 @@ export async function loader({}: Route.LoaderArgs) {
         where: { categoryId: category.id },
         include: {
           user: {
-            select: { id: true, createdAt: true, updatedAt: true, email: true },
+            omit: { passwordHash: true },
           },
         },
         orderBy: { createdAt: 'desc' },
