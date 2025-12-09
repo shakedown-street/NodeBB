@@ -24,9 +24,14 @@ export default function Nav() {
                   <button className="pw-button sm">Logout</button>
                 </Link>
               ) : (
-                <Link to="/login">
-                  <button className="pw-button sm">Login</button>
-                </Link>
+                <>
+                  <Link to="/signup">
+                    <button className="pw-button sm">Signup</button>
+                  </Link>
+                  <Link to="/login">
+                    <button className="pw-button primary sm">Login</button>
+                  </Link>
+                </>
               )}
             </div>
           </nav>
