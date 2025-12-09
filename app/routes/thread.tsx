@@ -134,7 +134,7 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
             </div>
           )}
           {posts.map((post) => (
-            <div className="pw-card p-0">
+            <div key={post.id} className="pw-card p-0">
               <div
                 className="border-b p-4"
                 style={{
