@@ -1,5 +1,8 @@
 import clsx from 'clsx';
+import React from 'react';
 import { Link, redirect } from 'react-router';
+import { Markdown } from '~/components/markdown';
+import { MarkdownEditor } from '~/components/markdown-editor';
 import { useAuth } from '~/context/auth';
 import prisma from '~/lib/prisma';
 import { getUserId } from '~/services/auth.service';
@@ -89,8 +92,9 @@ export async function action({ params, request }: Route.ActionArgs) {
 
 export default function Thread({ loaderData }: Route.ComponentProps) {
   const { thread, posts, totalPosts, page, pageSize } = loaderData;
-
   const totalPages = Math.ceil(totalPosts / pageSize);
+
+  const [postContent, setPostContent] = React.useState('');
 
   const { user } = useAuth();
 
@@ -122,13 +126,7 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
                   <div>{thread.user.email}</div>
                 </div>
                 <div className="flex-1 p-4">
-                  <p
-                    style={{
-                      whiteSpace: 'pre-wrap',
-                    }}
-                  >
-                    {thread.content}
-                  </p>
+                  <Markdown content={thread.content} />
                 </div>
               </div>
             </div>
@@ -151,13 +149,7 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
                   <div>{post.user.email}</div>
                 </div>
                 <div className="flex-1 p-4">
-                  <p
-                    style={{
-                      whiteSpace: 'pre-wrap',
-                    }}
-                  >
-                    {post.content}
-                  </p>
+                  <Markdown content={post.content} />
                 </div>
               </div>
             </div>
@@ -203,7 +195,8 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
               <div className="p-4">
                 <form className="pw-form" method="post">
                   <div className="pw-form-group">
-                    <textarea rows={8} name="content" required></textarea>
+                    <MarkdownEditor onChange={setPostContent} value={postContent} />
+                    <input type="hidden" name="content" value={postContent} />
                   </div>
                   <div className="pw-form-actions end">
                     <button type="submit">Post reply</button>

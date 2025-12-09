@@ -1,4 +1,6 @@
+import React from 'react';
 import { Link, redirect } from 'react-router';
+import { MarkdownEditor } from '~/components/markdown-editor';
 import prisma from '~/lib/prisma';
 import { getUserId, requireUserId } from '~/services/auth.service';
 import type { Route } from './+types/thread-create';
@@ -52,6 +54,8 @@ export async function action({ params, request }: Route.ActionArgs) {
 export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
   const { category } = loaderData;
 
+  const [content, setContent] = React.useState('');
+
   if (!category) {
     return <div>Category not found</div>;
   }
@@ -79,7 +83,8 @@ export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
               </div>
               <div className="pw-form-group">
                 <label htmlFor="content">Content</label>
-                <textarea id="content" rows={8} name="content" required></textarea>
+                <MarkdownEditor onChange={setContent} value={content} />
+                <input type="hidden" name="content" value={content} />
               </div>
               <div className="pw-form-actions end">
                 <button type="submit">Create thread</button>

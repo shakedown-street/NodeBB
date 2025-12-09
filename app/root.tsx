@@ -20,19 +20,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        {/* Prevent FOUC by setting theme before React loads */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                var theme = localStorage.getItem('theme');
-                if (theme === 'light' || theme === 'dark') {
-                  document.documentElement.setAttribute('data-theme', theme);
-                }
-              } catch(e) {}
-            `,
-          }}
-        />
       </head>
       <body>
         {children}
