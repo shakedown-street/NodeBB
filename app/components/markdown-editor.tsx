@@ -1,7 +1,7 @@
 import '@uiw/react-markdown-preview/markdown.css';
 import '@uiw/react-md-editor/markdown-editor.css';
 import React from 'react';
-import { useTheme } from '~/context/theme';
+import { useTheme } from 'remix-themes';
 
 type MarkdownEditorProps = {
   height?: number;
@@ -12,7 +12,7 @@ type MarkdownEditorProps = {
 export function MarkdownEditor({ height = 300, onChange, value }: MarkdownEditorProps) {
   const [MDEditor, setMDEditor] = React.useState<any>(null);
 
-  const { theme } = useTheme();
+  const [theme] = useTheme();
 
   React.useEffect(() => {
     import('@uiw/react-md-editor').then((mod) => setMDEditor(() => mod.default));

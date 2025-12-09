@@ -1,36 +1,41 @@
-import { MoonIcon, SunIcon } from '@heroicons/react/16/solid';
+import { Moon, Sun } from 'lucide-react';
 import { Link } from 'react-router';
+import { Theme, useTheme } from 'remix-themes';
 import { useAuth } from '~/context/auth';
-import { useTheme } from '~/context/theme';
+import { Button } from './ui/button';
 
 export default function Nav() {
   const { user } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const [theme, setTheme] = useTheme();
 
   return (
     <>
       <div className="border-b">
-        <div className="pw-container xl">
+        <div className="container mx-auto px-4">
           <nav className="flex items-center justify-between py-4">
-            <Link className="text-xl font-bold" to="/">
+            <Link className="text-primary text-xl font-bold" to="/">
               NodeBB
             </Link>
             <div className="flex items-center gap-4">
-              <button className="pw-button sm" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-                {theme === 'light' ? <MoonIcon className="h-4 w-4" /> : <SunIcon className="h-4 w-4" />}
-              </button>
+              <Button
+                onClick={() => setTheme(theme === Theme.LIGHT ? Theme.DARK : Theme.LIGHT)}
+                size="icon-sm"
+                variant="outline"
+              >
+                {theme === Theme.LIGHT ? <Moon /> : <Sun />}
+              </Button>
               {user ? (
-                <Link to="/logout">
-                  <button className="pw-button sm">Logout</button>
-                </Link>
+                <Button asChild size="sm">
+                  <Link to="/logout">Logout</Link>
+                </Button>
               ) : (
                 <>
-                  <Link to="/signup">
-                    <button className="pw-button sm">Signup</button>
-                  </Link>
-                  <Link to="/login">
-                    <button className="pw-button primary sm">Login</button>
-                  </Link>
+                  <Button asChild size="sm" variant="ghost">
+                    <Link to="/signup">Signup</Link>
+                  </Button>
+                  <Button asChild size="sm">
+                    <Link to="/login">Login</Link>
+                  </Button>
                 </>
               )}
             </div>

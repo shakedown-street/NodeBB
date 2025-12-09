@@ -1,4 +1,8 @@
 import z from 'zod';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
 import { createUser, login, redirectIfAuthenticated } from '~/services/auth.service';
 import type { Route } from './+types/signup';
 
@@ -48,36 +52,38 @@ export async function action({ request }: Route.ActionArgs) {
 export default function Signup({ actionData }: Route.ComponentProps) {
   return (
     <>
-      <div className="pw-container xs">
-        <div className="pw-card">
-          <h1 className="mt-0">Signup</h1>
-          <form className="pw-form" method="post">
-            <div className="pw-form-group">
-              <label htmlFor="email">Email</label>
-              <input className="w-full" id="email" name="email" required type="email" />
-            </div>
-            <div className="pw-form-group">
-              <label htmlFor="password1">Password</label>
-              <input className="w-full" id="password1" name="password1" required type="password" />
-            </div>
-            <div className="pw-form-group">
-              <label htmlFor="password2">Password (Again)</label>
-              <input className="w-full" id="password2" name="password2" required type="password" />
-            </div>
-            {actionData?.error && (
-              <ul>
-                {actionData.error.map((err: { message: string }, i: number) => (
-                  <li key={i} className="text-red-800">
-                    {err.message}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <button className="pw-button primary" type="submit">
-              Sign Up
-            </button>
-          </form>
-        </div>
+      <div className="container mx-auto max-w-sm px-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Signup</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form className="flex flex-col gap-4" method="post">
+              <div className="flex flex-col items-start gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" required type="email" />
+              </div>
+              <div className="flex flex-col items-start gap-2">
+                <Label htmlFor="password1">Password</Label>
+                <Input id="password1" name="password1" required type="password" />
+              </div>
+              <div className="flex flex-col items-start gap-2">
+                <Label htmlFor="password2">Password (Again)</Label>
+                <Input id="password2" name="password2" required type="password" />
+              </div>
+              {actionData?.error && (
+                <ul>
+                  {actionData.error.map((err: { message: string }, i: number) => (
+                    <li key={i} className="text-destructive">
+                      {err.message}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Button type="submit">Sign Up</Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </>
   );

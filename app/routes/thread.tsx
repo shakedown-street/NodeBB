@@ -1,8 +1,18 @@
-import clsx from 'clsx';
 import React from 'react';
 import { Link, redirect } from 'react-router';
 import { Markdown } from '~/components/markdown';
 import { MarkdownEditor } from '~/components/markdown-editor';
+import { Avatar, AvatarFallback } from '~/components/ui/avatar';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '~/components/ui/pagination';
 import { useAuth } from '~/context/auth';
 import prisma from '~/lib/prisma';
 import { getUserId } from '~/services/auth.service';
@@ -104,106 +114,96 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className="pw-container xl">
-        <Link to={`/categories/${thread.categoryId}`}>Back to {thread.category.name}</Link>
-        <h1>{thread.title}</h1>
+      <div className="container mx-auto px-4">
+        <Button asChild className="mb-4" variant="outline">
+          <Link to={`/categories/${thread.categoryId}`}>Back to {thread.category.name}</Link>
+        </Button>
+        <h1 className="mb-4 text-2xl font-bold">{thread.title}</h1>
         <div className="flex flex-col gap-4">
           {page === 1 && (
-            <div className="pw-card p-0">
-              <div
-                className="border-b p-4"
-                style={{
-                  backgroundColor: 'var(--muted)',
-                }}
-              >
-                <h4 className="my-0">{thread.createdAt.toLocaleString()}</h4>
-              </div>
-              <div className="flex">
-                <div className="flex w-64 flex-col items-center gap-4 border-r p-4">
-                  <div className="pw-avatar xl">
-                    <div className="pw-avatar-fallback">{thread.user.email.charAt(0).toUpperCase()}</div>
+            <Card>
+              <CardHeader>
+                <CardTitle>{thread.createdAt.toLocaleString()}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex">
+                  <div className="flex-1 p-4">
+                    <div className="flex flex-col items-center gap-4">
+                      <Avatar className="h-32 w-32">
+                        <AvatarFallback>{thread.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>{thread.user.email}</div>
+                    </div>
                   </div>
-                  <div>{thread.user.email}</div>
+                  <div className="flex-5 p-4">
+                    <div className="prose dark:prose-invert">
+                      <Markdown content={thread.content} />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 p-4">
-                  <Markdown content={thread.content} />
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           )}
           {posts.map((post) => (
-            <div key={post.id} className="pw-card p-0">
-              <div
-                className="border-b p-4"
-                style={{
-                  backgroundColor: 'var(--muted)',
-                }}
-              >
-                <h4 className="my-0">{post.createdAt.toLocaleString()}</h4>
-              </div>
-              <div className="flex">
-                <div className="flex w-64 flex-col items-center gap-4 border-r p-4">
-                  <div className="pw-avatar xl">
-                    <div className="pw-avatar-fallback">{post.user.email.charAt(0).toUpperCase()}</div>
+            <Card>
+              <CardHeader>
+                <CardTitle>{post.createdAt.toLocaleString()}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex">
+                  <div className="flex-1 p-4">
+                    <div className="flex flex-col items-center gap-4">
+                      <Avatar className="h-32 w-32">
+                        <AvatarFallback>{post.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>{post.user.email}</div>
+                    </div>
                   </div>
-                  <div>{post.user.email}</div>
+                  <div className="flex-5 p-4">
+                    <div className="prose dark:prose-invert">
+                      <Markdown content={post.content} />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 p-4">
-                  <Markdown content={post.content} />
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
           {totalPages > 1 && (
-            <ul className="pw-pagination">
-              <li
-                className={clsx({
-                  disabled: page === 1,
-                })}
-              >
-                {page === 1 ? 'Prev' : <Link to={`?page=${page - 1}`}>Prev</Link>}
-              </li>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <li
-                  key={i}
-                  className={clsx({
-                    active: page === i + 1,
-                  })}
-                >
-                  {page === i + 1 ? i + 1 : <Link to={`?page=${i + 1}`}>{i + 1}</Link>}
-                </li>
-              ))}
-              <li
-                className={clsx({
-                  disabled: page === totalPages,
-                })}
-              >
-                {page === totalPages ? 'Next' : <Link to={`?page=${page + 1}`}>Next</Link>}
-              </li>
-            </ul>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious to={page === 1 ? '#' : `?page=${page - 1}`}>Previous</PaginationPrevious>
+                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink to={`?page=${i + 1}`} isActive={page === i + 1}>
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext to={page === totalPages ? '#' : `?page=${page + 1}`}>Next</PaginationNext>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           )}
           {user && (
-            <div className="pw-card p-0">
-              <div
-                className="border-b p-4"
-                style={{
-                  backgroundColor: 'var(--muted)',
-                }}
-              >
-                <h4 className="my-0">Reply to thread</h4>
-              </div>
-              <div className="p-4">
-                <form className="pw-form" method="post">
-                  <div className="pw-form-group">
+            <Card>
+              <CardHeader>
+                <CardTitle>Reply to thread</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form className="flex flex-col gap-4" method="post">
+                  <div className="flex flex-col gap-2">
                     <MarkdownEditor onChange={setPostContent} value={postContent} />
                     <input type="hidden" name="content" value={postContent} />
                   </div>
-                  <div className="pw-form-actions end">
-                    <button type="submit">Post reply</button>
+                  <div className="flex items-center justify-end">
+                    <Button type="submit">Post reply</Button>
                   </div>
                 </form>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>

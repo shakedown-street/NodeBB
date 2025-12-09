@@ -1,4 +1,6 @@
 import { Link } from 'react-router';
+import { Avatar, AvatarFallback } from '~/components/ui/avatar';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
 import prisma from '~/lib/prisma';
 import type { Route } from './+types/home';
 
@@ -50,56 +52,56 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className="pw-container xl">
-        <div className="pw-table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Threads</th>
-                <th>Posts</th>
-                <th>Latest thread</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((category) => (
-                <tr key={category.id}>
-                  <td>
-                    <Link to={`/categories/${category.id}`}>{category.name}</Link>
-                  </td>
-                  <td>{category.threadCount}</td>
-                  <td>{category.postCount}</td>
-                  <td>
-                    {category.latestThread ? (
-                      <div className="flex items-center gap-3">
-                        <div className="pw-avatar xs">
-                          <div className="pw-avatar-fallback">
-                            {category.latestThread.user.email.charAt(0).toUpperCase()}
-                          </div>
-                        </div>
+      <div className="container mx-auto px-4">
+        <Table className="mb-8">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Category</TableHead>
+              <TableHead className="w-24 text-center">Threads</TableHead>
+              <TableHead className="w-24 text-center">Posts</TableHead>
+              <TableHead className="text-right">Latest thread</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {categories.map((category) => (
+              <TableRow key={category.id}>
+                <TableCell>
+                  <Link className="text-primary" to={`/categories/${category.id}`}>
+                    {category.name}
+                  </Link>
+                </TableCell>
+                <TableCell className="text-center">{category.threadCount}</TableCell>
+                <TableCell className="text-center">{category.postCount}</TableCell>
+                <TableCell>
+                  {category.latestThread ? (
+                    <div className="flex items-center justify-end gap-3">
+                      <Avatar>
+                        <AvatarFallback>{category.latestThread.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <Link className="text-primary" to={`/threads/${category.latestThread.id}`}>
+                          {category.latestThread.title}
+                        </Link>
                         <div>
-                          <Link className="block" to={`/threads/${category.latestThread.id}`}>
-                            {category.latestThread.title}
-                          </Link>
-                          <div>
-                            {category.latestThread.createdAt.toLocaleString()} • {category.latestThread.user.email}
-                          </div>
+                          {category.latestThread.createdAt.toLocaleString()} • {category.latestThread.user.email}
                         </div>
                       </div>
-                    ) : (
-                      'No threads yet'
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <h2>Recent threads</h2>
-        <ul>
+                    </div>
+                  ) : (
+                    'No threads yet'
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <h2 className="mb-4 text-xl font-bold">Recent threads</h2>
+        <ul className="list-disc pl-5">
           {loaderData.recentThreads.map((thread) => (
             <li key={thread.id}>
-              <Link to={`/threads/${thread.id}`}>{thread.title}</Link>
+              <Link className="text-primary" to={`/threads/${thread.id}`}>
+                {thread.title}
+              </Link>
             </li>
           ))}
         </ul>

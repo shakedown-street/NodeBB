@@ -1,6 +1,10 @@
 import React from 'react';
 import { Link, redirect } from 'react-router';
 import { MarkdownEditor } from '~/components/markdown-editor';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
 import prisma from '~/lib/prisma';
 import { getUserId, requireUserId } from '~/services/auth.service';
 import type { Route } from './+types/thread-create';
@@ -62,36 +66,31 @@ export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className="pw-container xl">
-        <Link to={`/categories/${category.id}`}>Back to {category.name}</Link>
-        <h1>{category.name}</h1>
-
-        <div className="pw-card p-0">
-          <div
-            className="border-b p-4"
-            style={{
-              backgroundColor: 'var(--muted)',
-            }}
-          >
-            <h4 className="my-0">Create thread</h4>
-          </div>
-          <div className="p-4">
-            <form className="pw-form" method="post">
-              <div className="pw-form-group">
-                <label htmlFor="title">Title</label>
-                <input className="w-full" id="title" name="title" required type="text" />
+      <div className="container mx-auto px-4">
+        <Button asChild className="mb-4" variant="outline">
+          <Link to={`/categories/${category.id}`}>Back to {category.name}</Link>
+        </Button>
+        <Card>
+          <CardHeader>
+            <CardTitle>Create thread</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form className="flex flex-col gap-4" method="post">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="title">Title</Label>
+                <Input id="title" name="title" required type="text" />
               </div>
-              <div className="pw-form-group">
-                <label htmlFor="content">Content</label>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="content">Content</Label>
                 <MarkdownEditor onChange={setContent} value={content} />
                 <input type="hidden" name="content" value={content} />
               </div>
-              <div className="pw-form-actions end">
-                <button type="submit">Create thread</button>
+              <div className="flex items-center justify-end gap-4">
+                <Button type="submit">Create thread</Button>
               </div>
             </form>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </>
   );

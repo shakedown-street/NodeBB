@@ -8,4 +8,5 @@ export default [
   route('/categories/:id', 'routes/category.tsx'),
   route('/categories/:id/create-thread', 'routes/thread-create.tsx'),
   route('/threads/:id', 'routes/thread.tsx'),
+  route('/action/set-theme', 'routes/action.set-theme.ts'),
 ] satisfies RouteConfig;

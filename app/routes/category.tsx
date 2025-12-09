@@ -1,4 +1,7 @@
 import { Link } from 'react-router';
+import { Avatar, AvatarFallback } from '~/components/ui/avatar';
+import { Button } from '~/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
 import { useAuth } from '~/context/auth';
 import prisma from '~/lib/prisma';
 import type { Route } from './+types/category';
@@ -54,56 +57,56 @@ export default function Category({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <div className="pw-container xl">
-        <Link to="/">Back to home</Link>
-        <div className="flex items-center justify-between">
-          <h1>{category.name}</h1>
+      <div className="container mx-auto px-4">
+        <Button asChild className="mb-4" variant="outline">
+          <Link to="/">Back to home</Link>
+        </Button>
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">{category.name}</h1>
           {user && (
-            <Link to={`/categories/${category.id}/create-thread`}>
-              <button className="pw-button primary">Create thread</button>
-            </Link>
+            <Button asChild>
+              <Link to={`/categories/${category.id}/create-thread`}>Create thread</Link>
+            </Button>
           )}
         </div>
-        <div className="pw-table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Thread</th>
-                <th>Posts</th>
-                <th>Latest post</th>
-              </tr>
-            </thead>
-            <tbody>
-              {threads.map((thread) => (
-                <tr key={thread.id}>
-                  <td>
-                    <Link to={`/threads/${thread.id}`}>{thread.title}</Link>
-                  </td>
-                  <td>{thread.postCount}</td>
-                  <td>
-                    {thread.latestPost ? (
-                      <div className="flex items-center gap-3">
-                        <div className="pw-avatar xs">
-                          <div className="pw-avatar-fallback">
-                            {thread.latestPost.user.email.charAt(0).toUpperCase()}
-                          </div>
-                        </div>
-                        <div>
-                          <Link className="block" to={`/threads/${thread.id}#post-${thread.latestPost.id}`}>
-                            {thread.latestPost.createdAt.toLocaleString()}
-                          </Link>
-                          <div>{thread.latestPost.user.email}</div>
-                        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Thread</TableHead>
+              <TableHead className="w-24 text-center">Posts</TableHead>
+              <TableHead className="text-right">Latest post</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {threads.map((thread) => (
+              <TableRow key={thread.id}>
+                <TableCell>
+                  <Link className="text-primary" to={`/threads/${thread.id}`}>
+                    {thread.title}
+                  </Link>
+                </TableCell>
+                <TableCell className="text-center">{thread.postCount}</TableCell>
+                <TableCell className="text-right">
+                  {thread.latestPost ? (
+                    <div className="flex items-center justify-end gap-3">
+                      <Avatar>
+                        <AvatarFallback>{thread.latestPost.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <Link className="text-primary" to={`/threads/${thread.id}#post-${thread.latestPost.id}`}>
+                          {thread.latestPost.createdAt.toLocaleString()}
+                        </Link>
+                        <div>{thread.latestPost.user.email}</div>
                       </div>
-                    ) : (
-                      'No threads yet'
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  ) : (
+                    'No threads yet'
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </>
   );

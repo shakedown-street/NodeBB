@@ -1,54 +1,59 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
+import { PreventFlashOnWrongTheme, ThemeProvider } from 'remix-themes';
 import type { Route } from './+types/root';
+import './app.css';
 import Nav from './components/nav';
 import { AuthProvider } from './context/auth';
-import { ThemeProvider } from './context/theme';
+import { cn } from './lib/utils';
 import { getUser } from './services/auth.service';
+import { themeSessionResolver } from './services/theme.service';
 
 export const links: Route.LinksFunction = () => [
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  {
+    rel: 'preconnect',
+    href: 'https://fonts.gstatic.com',
+    crossOrigin: 'anonymous',
+  },
   {
     rel: 'stylesheet',
-    href: '/punkweb-ui.min.css',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" data-theme="dark">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
-  );
-}
-
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request);
+  const { getTheme } = await themeSessionResolver(request);
 
-  return { user };
+  return { user, theme: getTheme() };
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
-  const { user } = loaderData;
+  const { user, theme } = loaderData;
 
   return (
     <>
-      <AuthProvider user={user}>
-        <ThemeProvider>
-          <Nav />
-          <div className="my-12">
-            <Outlet />
-          </div>
-        </ThemeProvider>
-      </AuthProvider>
+      <ThemeProvider specifiedTheme={theme} themeAction="/action/set-theme">
+        <AuthProvider user={user}>
+          <html lang="en" className={cn(theme)}>
+            <head>
+              <meta charSet="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <Meta />
+              <PreventFlashOnWrongTheme ssrTheme={Boolean(theme)} />
+              <Links />
+            </head>
+            <body>
+              <Nav />
+              <div className="my-12">
+                <Outlet />
+              </div>
+              <ScrollRestoration />
+              <Scripts />
+            </body>
+          </html>
+        </AuthProvider>
+      </ThemeProvider>
     </>
   );
 }
