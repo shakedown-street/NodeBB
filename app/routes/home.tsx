@@ -96,7 +96,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </TableBody>
         </Table>
         <h2 className="mb-4 text-xl font-bold">Recent threads</h2>
-        <ul className="list-disc pl-5">
+        <ul>
           {loaderData.recentThreads.map((thread) => (
             <li key={thread.id}>
               <Link className="text-primary" to={`/threads/${thread.id}`}>

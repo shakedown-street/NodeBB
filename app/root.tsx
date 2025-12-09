@@ -45,7 +45,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
             </head>
             <body>
               <Nav />
-              <div className="my-12">
+              <div className="my-8">
                 <Outlet />
               </div>
               <ScrollRestoration />

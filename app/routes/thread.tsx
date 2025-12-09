@@ -136,7 +136,7 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
                     </div>
                   </div>
                   <div className="flex-5 p-4">
-                    <div className="prose dark:prose-invert">
+                    <div className="prose dark:prose-invert max-w-full">
                       <Markdown content={thread.content} />
                     </div>
                   </div>
@@ -160,7 +160,7 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
                     </div>
                   </div>
                   <div className="flex-5 p-4">
-                    <div className="prose dark:prose-invert">
+                    <div className="prose dark:prose-invert max-w-full">
                       <Markdown content={post.content} />
                     </div>
                   </div>
