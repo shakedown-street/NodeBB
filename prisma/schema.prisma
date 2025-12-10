@@ -51,7 +51,7 @@ model Post {
   updatedAt DateTime @updatedAt
   content   String
   threadId  Int
-  thread    Thread   @relation(fields: [threadId], references: [id])
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
 }
