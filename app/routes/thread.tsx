@@ -1,10 +1,11 @@
+import { Edit } from 'lucide-react';
 import React from 'react';
 import { Link, redirect } from 'react-router';
 import { Markdown } from '~/components/markdown';
 import { MarkdownEditor } from '~/components/markdown-editor';
 import { Avatar, AvatarFallback } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import {
   Pagination,
   PaginationContent,
@@ -127,45 +128,67 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
               </CardHeader>
               <CardContent>
                 <div className="flex">
-                  <div className="flex-1 p-4">
-                    <div className="flex flex-col items-center gap-4">
-                      <Avatar className="h-32 w-32">
-                        <AvatarFallback>{thread.user.email.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div>{thread.user.email}</div>
-                    </div>
+                  <div className="flex min-w-64 flex-col items-center gap-4 p-4">
+                    <Avatar className="h-32 w-32">
+                      <AvatarFallback>{thread.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>{thread.user.email}</div>
                   </div>
-                  <div className="flex-5 p-4">
-                    <div className="prose dark:prose-invert max-w-full">
-                      <Markdown content={thread.content} />
+                  <div className="flex w-full flex-col">
+                    <div className="p-4">
+                      <div className="prose dark:prose-invert max-w-full">
+                        <Markdown content={thread.content} />
+                      </div>
                     </div>
                   </div>
                 </div>
               </CardContent>
+              {user && user.id === thread.userId && (
+                <CardFooter className="justify-end">
+                  <div className="flex items-center gap-1">
+                    <Button asChild size="icon" variant="ghost">
+                      <Link to={`/threads/${thread.id}/update`}>
+                        <Edit />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardFooter>
+              )}
             </Card>
           )}
           {posts.map((post) => (
-            <Card>
+            <Card key={post.id}>
               <CardHeader>
                 <CardTitle>{post.createdAt.toLocaleString()}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex">
-                  <div className="flex-1 p-4">
-                    <div className="flex flex-col items-center gap-4">
-                      <Avatar className="h-32 w-32">
-                        <AvatarFallback>{post.user.email.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div>{post.user.email}</div>
-                    </div>
+                  <div className="flex min-w-64 flex-col items-center gap-4 p-4">
+                    <Avatar className="h-32 w-32">
+                      <AvatarFallback>{post.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>{post.user.email}</div>
                   </div>
-                  <div className="flex-5 p-4">
-                    <div className="prose dark:prose-invert max-w-full">
-                      <Markdown content={post.content} />
+                  <div className="flex w-full flex-col">
+                    <div className="p-4">
+                      <div className="prose dark:prose-invert max-w-full">
+                        <Markdown content={post.content} />
+                      </div>
                     </div>
                   </div>
                 </div>
               </CardContent>
+              {user && user.id === post.userId && (
+                <CardFooter className="justify-end">
+                  <div className="flex items-center gap-1">
+                    <Button asChild size="icon" variant="ghost">
+                      <Link to={`/posts/${post.id}/update`}>
+                        <Edit />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardFooter>
+              )}
             </Card>
           ))}
           {totalPages > 1 && (

@@ -7,7 +7,7 @@ import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import prisma from '~/lib/prisma';
 import { getUserId, requireUserId } from '~/services/auth.service';
-import type { Route } from './+types/thread-create';
+import type { Route } from './+types/thread-update';
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'NodeBB' }];
@@ -16,66 +16,101 @@ export function meta({}: Route.MetaArgs) {
 export async function loader({ params, request }: Route.LoaderArgs) {
   await requireUserId(request);
 
-  const category = await prisma.category.findUnique({
-    where: { id: Number(params.id) },
+  const threadId = Number(params.id);
+  const userId = await getUserId(request);
+
+  if (!userId) {
+    throw new Error('You must be logged in to update a thread');
+  }
+
+  const thread = await prisma.thread.findUnique({
+    where: { id: threadId },
   });
 
+  if (!thread) {
+    throw new Error('Thread not found');
+  }
+
+  if (thread.userId !== userId) {
+    throw new Error('You do not have permission to update this thread');
+  }
+
   return {
-    category,
+    thread,
   };
 }
 
 export async function action({ params, request }: Route.ActionArgs) {
+  const threadId = Number(params.id);
+  const userId = await getUserId(request);
+
+  if (!userId) {
+    throw new Error('You must be logged in to update a thread');
+  }
+
+  const thread = await prisma.thread.findUnique({
+    where: { id: threadId },
+  });
+
+  if (!thread) {
+    throw new Error('Thread not found');
+  }
+
+  if (thread.userId !== userId) {
+    throw new Error('You do not have permission to update this thread');
+  }
+
   const form = await request.formData();
   const title = String(form.get('title') || '');
   const content = String(form.get('content') || '');
 
   if (!title || !content) {
-    return { error: 'Title and content are required' };
+    throw new Error('Title and content are required');
   }
 
-  const userId = await getUserId(request);
-
-  if (!userId) {
-    return { error: 'You must be logged in to create a thread' };
-  }
-
-  const thread = await prisma.thread.create({
+  await prisma.thread.update({
+    where: { id: threadId },
     data: {
       title,
       content,
-      categoryId: Number(params.id),
-      userId,
     },
   });
 
   return redirect(`/threads/${thread.id}`);
 }
 
-export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
-  const { category } = loaderData;
+export default function ThreadUpdate({ loaderData }: Route.ComponentProps) {
+  const { thread } = loaderData;
 
-  const [content, setContent] = React.useState('');
+  const [title, setTitle] = React.useState(thread?.title ?? '');
+  const [content, setContent] = React.useState(thread?.content ?? '');
 
-  if (!category) {
-    return <div>Category not found</div>;
+  if (!thread) {
+    return <div>Thread not found</div>;
   }
 
   return (
     <>
       <div className="container mx-auto px-4">
         <Button asChild className="mb-4" variant="outline">
-          <Link to={`/categories/${category.id}`}>Back to {category.name}</Link>
+          <Link to={`/threads/${thread.id}`}>Back to thread</Link>
         </Button>
         <Card>
           <CardHeader>
-            <CardTitle>Create thread</CardTitle>
+            <CardTitle>Update thread</CardTitle>
           </CardHeader>
           <CardContent>
             <form className="flex flex-col gap-4" method="post">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="title">Title</Label>
-                <Input id="title" name="title" required type="text" />
+                <Input
+                  id="title"
+                  name="title"
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  type="text"
+                  value={title}
+                />
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="content">Content</Label>
@@ -83,7 +118,7 @@ export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
                 <input type="hidden" name="content" value={content} />
               </div>
               <div className="flex items-center justify-end gap-4">
-                <Button type="submit">Create thread</Button>
+                <Button type="submit">Update thread</Button>
               </div>
             </form>
           </CardContent>
