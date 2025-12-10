@@ -9,5 +9,6 @@ export default [
   route('/categories/:id/create-thread', 'routes/thread-create.tsx'),
   route('/threads/:id', 'routes/thread.tsx'),
   route('/threads/:id/update', 'routes/thread-update.tsx'),
+  route('/posts/:id/update', 'routes/post-update.tsx'),
   route('/action/set-theme', 'routes/action.set-theme.ts'),
 ] satisfies RouteConfig;
