@@ -3,7 +3,6 @@ import { Link, redirect } from 'react-router';
 import { MarkdownEditor } from '~/components/markdown-editor';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import prisma from '~/lib/prisma';
 import { getUserId, requireUserId } from '~/services/auth.service';
