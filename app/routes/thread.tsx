@@ -1,11 +1,19 @@
-import { Edit } from 'lucide-react';
+import { Edit, Trash } from 'lucide-react';
 import React from 'react';
-import { Link, redirect } from 'react-router';
+import { Link, redirect, useNavigate } from 'react-router';
 import { Markdown } from '~/components/markdown';
 import { MarkdownEditor } from '~/components/markdown-editor';
 import { Avatar, AvatarFallback } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog';
 import {
   Pagination,
   PaginationContent,
@@ -106,8 +114,30 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
   const totalPages = Math.ceil(totalPosts / pageSize);
 
   const [postContent, setPostContent] = React.useState('');
+  const [showDeleteThreadDialog, setShowDeleteThreadDialog] = React.useState(false);
+  const [deletePostId, setDeletePostId] = React.useState<number | null>(null);
 
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  async function confirmDeleteThread() {
+    await fetch(`/threads/${thread.id}/delete`, { method: 'POST', credentials: 'include' });
+
+    navigate(`/categories/${thread.categoryId}`);
+  }
+
+  async function confirmDeletePost() {
+    if (!deletePostId) {
+      return;
+    }
+
+    await fetch(`/posts/${deletePostId}/delete`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    window.location.reload();
+  }
 
   if (!thread) {
     return <div>Thread not found</div>;
@@ -151,6 +181,9 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
                         <Edit />
                       </Link>
                     </Button>
+                    <Button size="icon" variant="ghost" onClick={() => setShowDeleteThreadDialog(true)}>
+                      <Trash />
+                    </Button>
                   </div>
                 </CardFooter>
               )}
@@ -185,6 +218,9 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
                       <Link to={`/posts/${post.id}/update`}>
                         <Edit />
                       </Link>
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => setDeletePostId(post.id)}>
+                      <Trash />
                     </Button>
                   </div>
                 </CardFooter>
@@ -230,6 +266,42 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
           )}
         </div>
       </div>
+      <Dialog open={showDeleteThreadDialog} onOpenChange={setShowDeleteThreadDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete thread</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this thread? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setShowDeleteThreadDialog(false)} variant="secondary">
+              Cancel
+            </Button>
+            <Button onClick={confirmDeleteThread} variant="destructive">
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={!!deletePostId} onOpenChange={() => setDeletePostId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete post</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this post? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setDeletePostId(null)} variant="secondary">
+              Cancel
+            </Button>
+            <Button onClick={confirmDeletePost} variant="destructive">
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
