@@ -10,7 +10,7 @@ import { getUserId, requireUserId } from '~/services/auth.service';
 import type { Route } from './+types/thread-create';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'NodeBB' }];
+  return [{ title: 'Create Thread | NodeBB' }];
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {

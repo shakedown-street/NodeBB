@@ -27,8 +27,10 @@ import prisma from '~/lib/prisma';
 import { getUserId } from '~/services/auth.service';
 import type { Route } from './+types/thread';
 
-export function meta({}: Route.MetaArgs) {
-  return [{ title: 'NodeBB' }];
+export function meta({ loaderData }: Route.MetaArgs) {
+  const { thread } = loaderData;
+
+  return [{ title: thread ? `${thread.title} | NodeBB` : 'NodeBB' }];
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {

@@ -6,8 +6,10 @@ import { useAuth } from '~/context/auth';
 import prisma from '~/lib/prisma';
 import type { Route } from './+types/category';
 
-export function meta({}: Route.MetaArgs) {
-  return [{ title: 'NodeBB' }];
+export function meta({ loaderData }: Route.MetaArgs) {
+  const { category } = loaderData;
+
+  return [{ title: category ? `${category.name} | NodeBB` : 'NodeBB' }];
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {

@@ -9,7 +9,7 @@ import { getUserId, requireUserId } from '~/services/auth.service';
 import type { Route } from './+types/post-update';
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'NodeBB' }];
+  return [{ title: 'Update post | NodeBB' }];
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
