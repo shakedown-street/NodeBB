@@ -100,7 +100,7 @@ export default function Category({ loaderData }: Route.ComponentProps) {
                       </div>
                     </div>
                   ) : (
-                    'No threads yet'
+                    'No posts yet'
                   )}
                 </TableCell>
               </TableRow>
