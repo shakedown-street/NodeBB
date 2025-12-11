@@ -1,5 +1,5 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
-import { PreventFlashOnWrongTheme, ThemeProvider } from 'remix-themes';
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from 'react-router';
+import { PreventFlashOnWrongTheme, ThemeProvider, useTheme } from 'remix-themes';
 import type { Route } from './+types/root';
 import './app.css';
 import Nav from './components/nav';
@@ -28,32 +28,43 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { user, theme: getTheme() };
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
+export default function AppProvider({ loaderData }: Route.ComponentProps) {
   const { user, theme } = loaderData;
 
   return (
     <>
       <ThemeProvider specifiedTheme={theme} themeAction="/action/set-theme">
         <AuthProvider user={user}>
-          <html lang="en" className={cn(theme)}>
-            <head>
-              <meta charSet="utf-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <Meta />
-              <PreventFlashOnWrongTheme ssrTheme={Boolean(theme)} />
-              <Links />
-            </head>
-            <body>
-              <Nav />
-              <div className="my-8">
-                <Outlet />
-              </div>
-              <ScrollRestoration />
-              <Scripts />
-            </body>
-          </html>
+          <App />
         </AuthProvider>
       </ThemeProvider>
+    </>
+  );
+}
+
+export function App() {
+  const { theme: ssrTheme } = useLoaderData();
+  const [theme] = useTheme();
+
+  return (
+    <>
+      <html lang="en" className={cn(theme)}>
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <Meta />
+          <PreventFlashOnWrongTheme ssrTheme={Boolean(ssrTheme)} />
+          <Links />
+        </head>
+        <body>
+          <Nav />
+          <div className="my-8">
+            <Outlet />
+          </div>
+          <ScrollRestoration />
+          <Scripts />
+        </body>
+      </html>
     </>
   );
 }
