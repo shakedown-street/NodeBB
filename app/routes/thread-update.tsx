@@ -147,7 +147,7 @@ export default function ThreadUpdate({ loaderData }: Route.ComponentProps) {
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="content">Content</Label>
-                <MarkdownEditor onChange={setContent} value={content} />
+                <MarkdownEditor height={600} onChange={setContent} value={content} />
                 <input type="hidden" name="content" value={content} />
               </div>
               <div className="flex items-center justify-end gap-4">
