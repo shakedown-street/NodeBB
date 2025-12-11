@@ -1,5 +1,13 @@
 import { Link } from 'react-router';
 import { Avatar, AvatarFallback } from '~/components/ui/avatar';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 import { Button } from '~/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
 import { useAuth } from '~/context/auth';
@@ -21,6 +29,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     await prisma.thread
       .findMany({
         where: { categoryId: Number(params.id) },
+        include: {
+          user: {
+            omit: { passwordHash: true },
+          },
+        },
       })
       .then((threads) =>
         threads.map(async (thread) => {
@@ -60,14 +73,24 @@ export default function Category({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className="container mx-auto px-4">
-        <Button asChild className="mb-4" variant="outline">
-          <Link to="/">Back to home</Link>
-        </Button>
-        <div className="mb-4 flex items-center justify-between">
+        <Breadcrumb className="bg-card rounded-md border p-3">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{category.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <div className="my-8 flex items-center justify-between">
           <h1 className="text-2xl font-bold">{category.name}</h1>
           {user && (
             <Button asChild>
-              <Link to={`/categories/${category.id}/create-thread`}>Create thread</Link>
+              <Link to={`/categories/${category.id}/create-thread`}>Create Thread</Link>
             </Button>
           )}
         </div>
@@ -76,16 +99,19 @@ export default function Category({ loaderData }: Route.ComponentProps) {
             <TableRow>
               <TableHead>Thread</TableHead>
               <TableHead className="w-24 text-center">Posts</TableHead>
-              <TableHead className="text-right">Latest post</TableHead>
+              <TableHead className="text-right">Latest Post</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {threads.map((thread) => (
               <TableRow key={thread.id}>
                 <TableCell>
-                  <Link className="text-primary" to={`/threads/${thread.id}`}>
+                  <Link className="text-primary block" to={`/threads/${thread.id}`}>
                     {thread.title}
                   </Link>
+                  <div>
+                    {thread.user.email} • {thread.createdAt.toLocaleString()}
+                  </div>
                 </TableCell>
                 <TableCell className="text-center">{thread.postCount}</TableCell>
                 <TableCell className="text-right">

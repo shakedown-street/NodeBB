@@ -1,6 +1,14 @@
 import React from 'react';
 import { Link, redirect } from 'react-router';
 import { MarkdownEditor } from '~/components/markdown-editor';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
@@ -64,12 +72,28 @@ export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className="container mx-auto px-4">
-        <Button asChild className="mb-4" variant="outline">
-          <Link to={`/categories/${category.id}`}>Back to {category.name}</Link>
-        </Button>
+        <Breadcrumb className="bg-card mb-8 rounded-md border p-3">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/categories/${category.id}`}>{category.name}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Create Thread</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <Card>
           <CardHeader>
-            <CardTitle>Create thread</CardTitle>
+            <CardTitle>Create Thread</CardTitle>
           </CardHeader>
           <CardContent>
             <form className="flex flex-col gap-4" method="post">
@@ -83,7 +107,7 @@ export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
                 <input type="hidden" name="content" value={content} />
               </div>
               <div className="flex items-center justify-end gap-4">
-                <Button type="submit">Create thread</Button>
+                <Button type="submit">Create Thread</Button>
               </div>
             </form>
           </CardContent>

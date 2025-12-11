@@ -59,7 +59,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <TableHead>Category</TableHead>
               <TableHead className="w-24 text-center">Threads</TableHead>
               <TableHead className="w-24 text-center">Posts</TableHead>
-              <TableHead className="text-right">Latest thread</TableHead>
+              <TableHead className="text-right">Latest Thread</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -95,7 +95,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             ))}
           </TableBody>
         </Table>
-        <h2 className="mb-4 text-xl font-bold">Recent threads</h2>
+        <h2 className="mb-4 text-xl font-bold">Recent Threads</h2>
         <ul>
           {loaderData.recentThreads.map((thread) => (
             <li key={thread.id}>

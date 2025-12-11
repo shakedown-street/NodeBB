@@ -4,6 +4,14 @@ import { Link, redirect, useNavigate } from 'react-router';
 import { Markdown } from '~/components/markdown';
 import { MarkdownEditor } from '~/components/markdown-editor';
 import { Avatar, AvatarFallback } from '~/components/ui/avatar';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import {
@@ -148,10 +156,26 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className="container mx-auto px-4">
-        <Button asChild className="mb-4" variant="outline">
-          <Link to={`/categories/${thread.categoryId}`}>Back to {thread.category.name}</Link>
-        </Button>
-        <h1 className="mb-4 text-2xl font-bold">{thread.title}</h1>
+        <Breadcrumb className="bg-card rounded-md border p-3">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/categories/${thread.categoryId}`}>{thread.category.name}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{thread.title}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <h1 className="my-8 text-2xl font-bold">{thread.title}</h1>
         <div className="flex flex-col gap-4">
           {page === 1 && (
             <Card>
@@ -251,7 +275,7 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
           {user && (
             <Card>
               <CardHeader>
-                <CardTitle>Reply to thread</CardTitle>
+                <CardTitle>Reply to Thread</CardTitle>
               </CardHeader>
               <CardContent>
                 <form className="flex flex-col gap-4" method="post">
@@ -271,7 +295,7 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
       <Dialog open={showDeleteThreadDialog} onOpenChange={setShowDeleteThreadDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete thread</DialogTitle>
+            <DialogTitle>Delete Thread</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this thread? This action cannot be undone.
             </DialogDescription>
@@ -289,7 +313,7 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
       <Dialog open={!!deletePostId} onOpenChange={() => setDeletePostId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete post</DialogTitle>
+            <DialogTitle>Delete Post</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this post? This action cannot be undone.
             </DialogDescription>

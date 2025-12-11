@@ -1,6 +1,14 @@
 import React from 'react';
 import { Link, redirect } from 'react-router';
 import { MarkdownEditor } from '~/components/markdown-editor';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
@@ -25,6 +33,9 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   const thread = await prisma.thread.findUnique({
     where: { id: threadId },
+    include: {
+      category: true,
+    },
   });
 
   if (!thread) {
@@ -92,12 +103,34 @@ export default function ThreadUpdate({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className="container mx-auto px-4">
-        <Button asChild className="mb-4" variant="outline">
-          <Link to={`/threads/${thread.id}`}>Back to thread</Link>
-        </Button>
+        <Breadcrumb className="bg-card mb-8 rounded-md border p-3">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/categories/${thread.category.id}`}>{thread.category.name}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/threads/${thread.id}`}>{thread.title}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Update Thread</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <Card>
           <CardHeader>
-            <CardTitle>Update thread</CardTitle>
+            <CardTitle>Update Thread</CardTitle>
           </CardHeader>
           <CardContent>
             <form className="flex flex-col gap-4" method="post">
@@ -118,7 +151,7 @@ export default function ThreadUpdate({ loaderData }: Route.ComponentProps) {
                 <input type="hidden" name="content" value={content} />
               </div>
               <div className="flex items-center justify-end gap-4">
-                <Button type="submit">Update thread</Button>
+                <Button type="submit">Update Thread</Button>
               </div>
             </form>
           </CardContent>

@@ -31,7 +31,7 @@ export default function Nav() {
               ) : (
                 <>
                   <Button asChild size="sm" variant="ghost">
-                    <Link to="/signup">Signup</Link>
+                    <Link to="/signup">Sign Up</Link>
                   </Button>
                   <Button asChild size="sm">
                     <Link to="/login">Login</Link>

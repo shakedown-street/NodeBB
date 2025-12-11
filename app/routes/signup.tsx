@@ -13,7 +13,7 @@ const SignupSchema = z.object({
 });
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Signup | NodeBB' }];
+  return [{ title: 'Sign Up | NodeBB' }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -55,7 +55,7 @@ export default function Signup({ actionData }: Route.ComponentProps) {
       <div className="container mx-auto max-w-sm px-4">
         <Card>
           <CardHeader>
-            <CardTitle>Signup</CardTitle>
+            <CardTitle>Sign Up</CardTitle>
           </CardHeader>
           <CardContent>
             <form className="flex flex-col gap-4" method="post">
