@@ -110,7 +110,7 @@ export default function Category({ loaderData }: Route.ComponentProps) {
                     {thread.title}
                   </Link>
                   <div>
-                    {thread.user.email} • {thread.createdAt.toLocaleString()}
+                    {thread.user.username} • {thread.createdAt.toLocaleString()}
                   </div>
                 </TableCell>
                 <TableCell className="text-center">{thread.postCount}</TableCell>
@@ -118,13 +118,13 @@ export default function Category({ loaderData }: Route.ComponentProps) {
                   {thread.latestPost ? (
                     <div className="flex items-center justify-end gap-3">
                       <Avatar>
-                        <AvatarFallback>{thread.latestPost.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>{thread.latestPost.user.username.charAt(0).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div>
                         <Link className="text-primary" to={`/threads/${thread.id}#post-${thread.latestPost.id}`}>
                           {thread.latestPost.createdAt.toLocaleString()}
                         </Link>
-                        <div>{thread.latestPost.user.email}</div>
+                        <div>{thread.latestPost.user.username}</div>
                       </div>
                     </div>
                   ) : (

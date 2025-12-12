@@ -7,7 +7,7 @@ import { createUser, login, redirectIfAuthenticated } from '~/services/auth.serv
 import type { Route } from './+types/signup';
 
 const SignupSchema = z.object({
-  email: z.email().trim(),
+  username: z.string().trim(),
   password1: z.string().min(1, 'Password is required'),
   password2: z.string().min(1, 'Please confirm your password'),
 });
@@ -23,7 +23,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const form = await request.formData();
   const formData = {
-    email: String(form.get('email') || ''),
+    username: String(form.get('username') || ''),
     password1: String(form.get('password1') || ''),
     password2: String(form.get('password2') || ''),
   };
@@ -38,10 +38,10 @@ export async function action({ request }: Route.ActionArgs) {
     return { error: [{ message: 'Passwords do not match' }] };
   }
 
-  const { email, password1 } = result.data;
+  const { username, password1 } = result.data;
 
   try {
-    const user = await createUser({ email, password: password1 });
+    const user = await createUser({ username, password: password1 });
 
     return await login(user.id, '/');
   } catch (error: any) {
@@ -60,8 +60,8 @@ export default function Signup({ actionData }: Route.ComponentProps) {
           <CardContent>
             <form className="flex flex-col gap-4" method="post">
               <div className="flex flex-col items-start gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" required type="email" />
+                <Label htmlFor="username">Username</Label>
+                <Input id="username" name="username" required type="text" />
               </div>
               <div className="flex flex-col items-start gap-2">
                 <Label htmlFor="password1">Password</Label>

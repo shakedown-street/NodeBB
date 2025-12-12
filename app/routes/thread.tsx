@@ -186,9 +186,9 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
                 <div className="flex">
                   <div className="flex min-w-64 flex-col items-center gap-4 p-4">
                     <Avatar className="h-32 w-32">
-                      <AvatarFallback>{thread.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>{thread.user.username.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <div>{thread.user.email}</div>
+                    <div>{thread.user.username}</div>
                   </div>
                   <div className="flex w-full flex-col">
                     <div className="p-4">
@@ -224,9 +224,9 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
                 <div className="flex">
                   <div className="flex min-w-64 flex-col items-center gap-4 p-4">
                     <Avatar className="h-32 w-32">
-                      <AvatarFallback>{post.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>{post.user.username.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <div>{post.user.email}</div>
+                    <div>{post.user.username}</div>
                   </div>
                   <div className="flex w-full flex-col">
                     <div className="p-4">

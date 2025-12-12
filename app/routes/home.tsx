@@ -76,14 +76,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   {category.latestThread ? (
                     <div className="flex items-center justify-end gap-3">
                       <Avatar>
-                        <AvatarFallback>{category.latestThread.user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>{category.latestThread.user.username.charAt(0).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div>
                         <Link className="text-primary" to={`/threads/${category.latestThread.id}`}>
                           {category.latestThread.title}
                         </Link>
                         <div>
-                          {category.latestThread.createdAt.toLocaleString()} • {category.latestThread.user.email}
+                          {category.latestThread.createdAt.toLocaleString()} • {category.latestThread.user.username}
                         </div>
                       </div>
                     </div>

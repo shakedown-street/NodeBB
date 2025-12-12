@@ -7,7 +7,7 @@ import { authenticate, login, redirectIfAuthenticated } from '~/services/auth.se
 import type { Route } from './+types/login';
 
 const LoginSchema = z.object({
-  email: z.email().trim(),
+  username: z.string().trim(),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -22,7 +22,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const form = await request.formData();
   const formData = {
-    email: String(form.get('email') || ''),
+    username: String(form.get('username') || ''),
     password: String(form.get('password') || ''),
   };
 
@@ -32,11 +32,11 @@ export async function action({ request }: Route.ActionArgs) {
     return { error: result.error.issues.map((issue) => ({ message: issue.message })) };
   }
 
-  const { email, password } = result.data;
-  const user = await authenticate(email, password);
+  const { username, password } = result.data;
+  const user = await authenticate(username, password);
 
   if (!user) {
-    return { error: [{ message: 'Invalid email or password' }] };
+    return { error: [{ message: 'Invalid username or password' }] };
   }
 
   const redirectTo = new URL(request.url).searchParams.get('redirectTo') || '/';
@@ -55,8 +55,8 @@ export default function Login({ actionData }: Route.ComponentProps) {
           <CardContent>
             <form className="flex flex-col gap-4" method="post">
               <div className="flex flex-col items-start gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" required type="email" />
+                <Label htmlFor="username">Username</Label>
+                <Input id="username" name="username" required type="text" />
               </div>
               <div className="flex flex-col items-start gap-2">
                 <Label htmlFor="password">Password</Label>
