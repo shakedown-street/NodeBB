@@ -22,34 +22,30 @@ const sessionStorage = createCookieSessionStorage({
 
 const USER_SESSION_KEY = 'userId';
 
-export async function createUser({ email, password }: { email: string; password: string }) {
-  const existing = await prisma.user.findUnique({ where: { email } });
+export async function createUser({ username, password }: { username: string; password: string }) {
+  const existing = await prisma.user.findUnique({ where: { username } });
 
   if (existing) {
-    throw new Error('Email already in use');
+    throw new Error('Username already in use');
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
 
-  const user = await prisma.user
-    .create({
-      data: {
-        email,
-        passwordHash,
-      },
-    })
-    .then((user) => ({
-      id: user.id,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      email: user.email,
-    }));
+  const user = await prisma.user.create({
+    data: {
+      username,
+      passwordHash,
+    },
+    omit: {
+      passwordHash: true,
+    },
+  });
 
   return user;
 }
 
-export async function authenticate(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
+export async function authenticate(username: string, password: string) {
+  const user = await prisma.user.findUnique({ where: { username } });
 
   if (!user) {
     return null;
@@ -61,12 +57,9 @@ export async function authenticate(email: string, password: string) {
     return null;
   }
 
-  return {
-    id: user.id,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-    email: user.email,
-  };
+  const { passwordHash, ...userWithoutPassword } = user;
+
+  return userWithoutPassword;
 }
 
 export async function login(userId: number, redirectTo = '/') {
