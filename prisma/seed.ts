@@ -14,6 +14,50 @@ const userData = [
   {
     username: 'admin',
     password: 'password',
+    isAdmin: true,
+  },
+];
+
+const categoryData = [
+  {
+    name: 'NodeBB',
+    slug: 'node-bb',
+    order: 0,
+    subcategories: [
+      {
+        name: 'Announcements',
+        slug: 'announcements',
+        description: 'Announcements about NodeBB',
+        adminPostOnly: true,
+        order: 0,
+      },
+      {
+        name: 'Guides',
+        slug: 'guides',
+        description: 'Learn how to install and configure NodeBB',
+        adminPostOnly: true,
+        order: 1,
+      },
+    ],
+  },
+  {
+    name: 'Community',
+    slug: 'community',
+    order: 1,
+    subcategories: [
+      {
+        name: 'Help',
+        slug: 'help',
+        description: 'Get help installing and configuring NodeBB',
+        order: 0,
+      },
+      {
+        name: 'Random',
+        slug: 'random',
+        description: 'For everything else!',
+        order: 1,
+      },
+    ],
   },
 ];
 
@@ -25,9 +69,28 @@ export async function main() {
       data: {
         username: u.username,
         passwordHash,
-        isAdmin: true,
+        isAdmin: u.isAdmin,
       },
     });
+  }
+
+  for (const category of categoryData) {
+    const { subcategories, ...c } = category;
+
+    const newCategory = await prisma.category.create({
+      data: {
+        ...c,
+      },
+    });
+
+    for (const subcategory of subcategories) {
+      await prisma.subcategory.create({
+        data: {
+          ...subcategory,
+          categoryId: newCategory.id,
+        },
+      });
+    }
   }
 }
 
