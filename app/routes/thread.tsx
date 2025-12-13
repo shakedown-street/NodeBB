@@ -45,7 +45,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const thread = await prisma.thread.findUnique({
     where: { id: Number(params.id) },
     include: {
-      category: true,
+      subcategory: {
+        include: {
+          category: true,
+        },
+      },
       user: {
         omit: { passwordHash: true },
       },
@@ -133,7 +137,7 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
   async function confirmDeleteThread() {
     await fetch(`/threads/${thread.id}/delete`, { method: 'POST', credentials: 'include' });
 
-    navigate(`/categories/${thread.categoryId}`);
+    navigate(`/subcategories/${thread.subcategory.id}`);
   }
 
   async function confirmDeletePost() {
@@ -166,7 +170,13 @@ export default function Thread({ loaderData }: Route.ComponentProps) {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to={`/categories/${thread.categoryId}`}>{thread.category.name}</Link>
+                <Link to="/">{thread.subcategory.category.name}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/subcategories/${thread.subcategoryId}`}>{thread.subcategory.name}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

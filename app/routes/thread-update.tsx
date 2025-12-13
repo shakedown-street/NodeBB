@@ -34,7 +34,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const thread = await prisma.thread.findUnique({
     where: { id: threadId },
     include: {
-      category: true,
+      subcategory: {
+        include: {
+          category: true,
+        },
+      },
     },
   });
 
@@ -113,7 +117,13 @@ export default function ThreadUpdate({ loaderData }: Route.ComponentProps) {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to={`/categories/${thread.category.id}`}>{thread.category.name}</Link>
+                <Link to="/">{thread.subcategory.category.name}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/subcategories/${thread.subcategory.id}`}>{thread.subcategory.name}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

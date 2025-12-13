@@ -12,62 +12,63 @@ import { Button } from '~/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
 import { useAuth } from '~/context/auth';
 import prisma from '~/lib/prisma';
-import type { Route } from './+types/category';
+import type { Route } from './+types/subcategory';
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  const { category } = loaderData;
+  const { subcategory } = loaderData;
 
-  return [{ title: category ? `${category.name} | NodeBB` : 'NodeBB' }];
+  return [{ title: subcategory ? `${subcategory.name} | NodeBB` : 'NodeBB' }];
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const category = await prisma.category.findUnique({
+  const subcategory = await prisma.subcategory.findUnique({
     where: { id: Number(params.id) },
+    include: {
+      category: true,
+    },
   });
 
-  const threads = await Promise.all(
-    await prisma.thread
-      .findMany({
-        where: { categoryId: Number(params.id) },
-        include: {
-          user: {
-            omit: { passwordHash: true },
+  const threadsWithLatestPost = await prisma.thread
+    .findMany({
+      where: { subcategoryId: Number(params.id) },
+      include: {
+        user: {
+          omit: {
+            passwordHash: true,
           },
         },
-      })
-      .then((threads) =>
+      },
+    })
+    .then((threads) =>
+      Promise.all(
         threads.map(async (thread) => {
           const postCount = await prisma.post.count({
             where: { threadId: thread.id },
           });
 
           const latestPost = await prisma.post.findFirst({
+            orderBy: { createdAt: 'desc' },
             where: { threadId: thread.id },
             include: {
-              user: {
-                omit: { passwordHash: true },
-              },
+              user: true,
             },
-            orderBy: { createdAt: 'desc' },
           });
+
           return { ...thread, postCount, latestPost };
         }),
       ),
-  );
+    );
 
-  return {
-    category,
-    threads,
-  };
+  return { subcategory, threads: threadsWithLatestPost };
 }
 
 export default function Category({ loaderData }: Route.ComponentProps) {
-  const { category, threads } = loaderData;
+  const { subcategory, threads } = loaderData;
 
   const { user } = useAuth();
 
-  if (!category) {
-    return <div>Category not found</div>;
+  if (!subcategory) {
+    return <div>Subcategory not found</div>;
   }
 
   return (
@@ -82,24 +83,30 @@ export default function Category({ loaderData }: Route.ComponentProps) {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{category.name}</BreadcrumbPage>
+              <BreadcrumbLink asChild>
+                <Link to="/">{subcategory.category.name}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{subcategory.name}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div className="my-8 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">{category.name}</h1>
+          <h1 className="text-2xl font-bold">{subcategory.name}</h1>
           {user && (
             <Button asChild>
-              <Link to={`/categories/${category.id}/create-thread`}>Create Thread</Link>
+              <Link to={`/subcategories/${subcategory.id}/create-thread`}>Create Thread</Link>
             </Button>
           )}
         </div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Thread</TableHead>
+              <TableHeader>Thread</TableHeader>
               <TableHead className="w-24 text-center">Posts</TableHead>
-              <TableHead className="text-right">Latest Post</TableHead>
+              <TableHead className="w-80 text-right">Latest Post</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -121,14 +128,16 @@ export default function Category({ loaderData }: Route.ComponentProps) {
                         <AvatarFallback>{thread.latestPost.user.username.charAt(0).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <Link className="text-primary" to={`/threads/${thread.id}#post-${thread.latestPost.id}`}>
+                        <Link className="text-primary" to={`/threads/${thread.latestPost.id}`}>
                           {thread.latestPost.createdAt.toLocaleString()}
                         </Link>
-                        <div>{thread.latestPost.user.username}</div>
+                        <div>
+                          {thread.latestPost.createdAt.toLocaleString()} • {thread.latestPost.user.username}
+                        </div>
                       </div>
                     </div>
                   ) : (
-                    'No posts yet'
+                    'No threads yet'
                   )}
                 </TableCell>
               </TableRow>

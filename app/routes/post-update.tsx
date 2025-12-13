@@ -35,7 +35,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     include: {
       thread: {
         include: {
-          category: true,
+          subcategory: {
+            include: {
+              category: true,
+            },
+          },
         },
       },
     },
@@ -113,7 +117,13 @@ export default function PostUpdate({ loaderData }: Route.ComponentProps) {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to={`/categories/${post.thread.category.id}`}>{post.thread.category.name}</Link>
+                <Link to="/">{post.thread.subcategory.category.name}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/categories/${post.thread.subcategory.id}`}>{post.thread.subcategory.name}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

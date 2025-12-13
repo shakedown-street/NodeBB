@@ -24,12 +24,15 @@ export function meta({}: Route.MetaArgs) {
 export async function loader({ params, request }: Route.LoaderArgs) {
   await requireUserId(request);
 
-  const category = await prisma.category.findUnique({
+  const subcategory = await prisma.subcategory.findUnique({
     where: { id: Number(params.id) },
+    include: {
+      category: true,
+    },
   });
 
   return {
-    category,
+    subcategory,
   };
 }
 
@@ -52,7 +55,7 @@ export async function action({ params, request }: Route.ActionArgs) {
     data: {
       title,
       content,
-      categoryId: Number(params.id),
+      subcategoryId: Number(params.id),
       userId,
     },
   });
@@ -61,12 +64,12 @@ export async function action({ params, request }: Route.ActionArgs) {
 }
 
 export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
-  const { category } = loaderData;
+  const { subcategory } = loaderData;
 
   const [content, setContent] = React.useState('');
 
-  if (!category) {
-    return <div>Category not found</div>;
+  if (!subcategory) {
+    return <div>Subcategory not found</div>;
   }
 
   return (
@@ -82,7 +85,13 @@ export default function ThreadCreate({ loaderData }: Route.ComponentProps) {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to={`/categories/${category.id}`}>{category.name}</Link>
+                <Link to="/">{subcategory.category.name}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/subcategories/${subcategory.id}`}>{subcategory.name}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

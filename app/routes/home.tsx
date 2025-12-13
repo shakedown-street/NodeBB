@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { Markdown } from '~/components/markdown';
 import { Avatar, AvatarFallback } from '~/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
 import prisma from '~/lib/prisma';
@@ -9,42 +10,41 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({}: Route.LoaderArgs) {
-  const categories = await prisma.category.findMany();
+  const categories = await prisma.category.findMany({
+    include: {
+      subcategories: true,
+    },
+  });
 
-  const categoriesWithLatestThread = await Promise.all(
+  const indexCategories = await Promise.all(
     categories.map(async (category) => {
-      const threadCount = await prisma.thread.count({
-        where: { categoryId: category.id },
-      });
-      const postCount = await prisma.post.count({
-        where: {
-          thread: {
-            categoryId: category.id,
-          },
-        },
-      });
-      const latestThread = await prisma.thread.findFirst({
-        where: { categoryId: category.id },
-        include: {
-          user: {
-            omit: { passwordHash: true },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-      });
-      return { ...category, threadCount, postCount, latestThread };
+      const subcategories = await Promise.all(
+        category.subcategories.map(async (subcategory) => {
+          const threadCount = await prisma.thread.count({
+            where: { subcategoryId: subcategory.id },
+          });
+          const postCount = await prisma.post.count({
+            where: { thread: { subcategoryId: subcategory.id } },
+          });
+          const latestThread = await prisma.thread.findFirst({
+            orderBy: { createdAt: 'desc' },
+            where: { subcategoryId: subcategory.id },
+            include: {
+              user: {
+                omit: {
+                  passwordHash: true,
+                },
+              },
+            },
+          });
+          return { ...subcategory, threadCount, postCount, latestThread };
+        }),
+      );
+      return { ...category, subcategories };
     }),
   );
 
-  const recentThreads = await prisma.thread.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 5,
-  });
-
-  return {
-    categories: categoriesWithLatestThread,
-    recentThreads,
-  };
+  return { categories: indexCategories };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
@@ -53,58 +53,58 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className="container mx-auto px-4">
-        <Table className="mb-8">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Category</TableHead>
-              <TableHead className="w-24 text-center">Threads</TableHead>
-              <TableHead className="w-24 text-center">Posts</TableHead>
-              <TableHead className="text-right">Latest Thread</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {categories.map((category) => (
-              <TableRow key={category.id}>
-                <TableCell>
-                  <Link className="text-primary" to={`/categories/${category.id}`}>
-                    {category.name}
-                  </Link>
-                </TableCell>
-                <TableCell className="text-center">{category.threadCount}</TableCell>
-                <TableCell className="text-center">{category.postCount}</TableCell>
-                <TableCell>
-                  {category.latestThread ? (
-                    <div className="flex items-center justify-end gap-3">
-                      <Avatar>
-                        <AvatarFallback>{category.latestThread.user.username.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <Link className="text-primary" to={`/threads/${category.latestThread.id}`}>
-                          {category.latestThread.title}
-                        </Link>
-                        <div>
-                          {category.latestThread.createdAt.toLocaleString()} • {category.latestThread.user.username}
-                        </div>
+        <div className="flex flex-col gap-8">
+          {categories.map((category) => (
+            <Table key={category.id}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{category.name}</TableHead>
+                  <TableHead className="w-24 text-center">Threads</TableHead>
+                  <TableHead className="w-24 text-center">Posts</TableHead>
+                  <TableHead className="w-80 text-right">Latest Thread</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {category.subcategories.map((subcategory) => (
+                  <TableRow key={subcategory.id}>
+                    <TableCell>
+                      <Link className="text-primary" to={`/subcategories/${subcategory.id}`}>
+                        {subcategory.name}
+                      </Link>
+                      <Markdown content={subcategory.description} />
+                    </TableCell>
+                    <TableCell className="text-center">{subcategory.threadCount}</TableCell>
+                    <TableCell className="text-center">{subcategory.postCount}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-3">
+                        {subcategory.latestThread ? (
+                          <>
+                            <Avatar>
+                              <AvatarFallback>
+                                {subcategory.latestThread.user.username.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <Link className="text-primary" to={`/threads/${subcategory.latestThread.id}`}>
+                                {subcategory.latestThread.title}
+                              </Link>
+                              <div>
+                                {subcategory.latestThread.createdAt.toLocaleString()} •{' '}
+                                {subcategory.latestThread.user.username}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          'No threads yet'
+                        )}
                       </div>
-                    </div>
-                  ) : (
-                    'No threads yet'
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <h2 className="mb-4 text-xl font-bold">Recent Threads</h2>
-        <ul>
-          {loaderData.recentThreads.map((thread) => (
-            <li key={thread.id}>
-              <Link className="text-primary" to={`/threads/${thread.id}`}>
-                {thread.title}
-              </Link>
-            </li>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           ))}
-        </ul>
+        </div>
       </div>
     </>
   );
